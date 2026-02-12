@@ -1,210 +1,228 @@
-# Why Ranking Actions Locally Beats Learning Global Value Functions: Lessons from GABAR
+# Stop Explaining Models. Start Letting Users Ask Questions.
 
-*How a simple shift in perspective—from "how far am I from the goal?" to "which action looks best right now?"—leads to policies that generalize 8x beyond training size.*
-
----
-
-## The Setup: Planning is Hard, and It Gets Harder Fast
-
-Imagine you're organizing a warehouse. You have 10 packages, a few trucks, and a couple of airplanes. A classical planner can figure out the optimal delivery sequence in seconds. Now scale that to 30 packages across multiple cities. The same planner might run for hours—or never finish at all.
-
-This is the fundamental scaling challenge in classical AI planning. The state space grows exponentially with the number of objects. Planning is NP-hard in most domains. Traditional planners use heuristic search, which works brilliantly on small problems but chokes on large ones.
-
-The natural question: **can we learn planning strategies from small, solvable problems and apply them to large, unsolvable ones?**
-
-This is exactly what our paper [*Graph Neural Network Based Action Ranking for Planning*](link-to-paper) addresses. We present GABAR—a system that trains on problems with 6-10 objects and successfully solves problems with 100+ objects, achieving 89% success rate on instances 8x larger than anything it saw during training.
+*How treating global explanations as databases—and LLMs as semantic parsers, not generators—creates an XAI interface that achieves 95% accuracy, transfers to new datasets at 90%, and sidesteps the hallucination problem entirely.*
 
 ---
 
-## The Core Insight: Stop Trying to Learn the Hardest Thing
+## The Problem Nobody Talks About in XAI
 
-Most learning-based planning approaches try to learn a **value function** $V(s)$—an estimate of how far state $s$ is from the goal. The idea is simple: if you know $V(s)$ for every state, you can greedily pick the action that leads to the state with the lowest value.
+We've gotten remarkably good at *generating* explanations for deep learning models. Grad-CAM, SHAP, LIME, concept bottleneck models, prototype networks—the zoo of explanation methods grows every year. But here's the uncomfortable truth:
 
-The problem? This requires **global consistency**. Your value function must correctly rank *every reachable state* relative to *every other reachable state*. As the problem grows, the number of states explodes exponentially. Learning a globally consistent function over this space is itself an extremely hard problem—and in domains where optimal planning is NP-hard, there's no reason to believe such a function generalizes to larger instances.
+**Most explanations go unused.**
 
-Here's our key realization:
+Not because they're wrong. Not because practitioners don't care about interpretability. But because the format is wrong. We hand users a static artifact—a saliency map, a set of rules, a list of prototypes—and say "here, understand your model." This is the equivalent of handing someone an encyclopedia when they asked a question.
 
-> **You don't need to rank all states. You only need to rank the actions available *right now*.**
+Consider what happens when you compute a global explanation for a scene classifier trained on ADE20K. You might get hundreds of logical rules per class, expressed as disjunctive normal form (DNF) formulas:
 
-At any given state in a typical planning problem, you might have 5-50 applicable actions. Ranking these is a *local* problem. You don't need to know anything about states three steps ahead. You just need to identify which of the currently available actions is most promising.
+> **bedroom** ← (bed ∧ wall) ∨ (bed ∧ curtain ∧ lamp) ∨ (bed ∧ pillow ∧ nightstand) ∨ ...
+> **kitchen** ← (stove ∧ cabinet) ∨ (oven ∧ counter ∧ sink) ∨ (refrigerator ∧ floor ∧ cabinet) ∨ ...
+> *... hundreds more rules per class, across 35 scene categories*
 
-This is a fundamentally simpler learning target:
-- **Value function learning**: Learn a function consistent across millions of states
-- **Action ranking**: Learn to pick the best among a handful of local options
+No human is going to read all of this. But every human who encounters this model will have *specific questions*: Does the model use background features for classification? What distinguishes kitchen from dining room? How often does "bed" appear in bedroom explanations?
 
-The difference matters enormously for generalization. Local patterns—"if a block is clear and needs to be somewhere else, pick it up"—tend to transfer across problem sizes. Global value relationships—"this specific state is exactly 17 steps from the goal"—do not.
-
----
-
-## How GABAR Works: Three Ideas Working Together
-
-GABAR combines three architectural choices that each address a specific challenge. Let me walk through each one.
-
-### 1. Action-Centric Graph Representation
-
-Most GNN-based planners represent a state as a graph of objects connected by predicates. If block A is on block B, there's an edge between them labeled "on."
-
-We add something new: **action nodes**. Every applicable action in the current state gets its own node in the graph, connected to the objects it involves.
-
-Why does this matter? Consider the action `unstack(A, B)`—pick up block A from block B. In our graph, this action has explicit edges to both A and B, with edge features encoding:
-- Which parameter position each object fills (A is param 1, B is param 2)
-- Which predicates each object satisfies in this action's context
-
-This gives the GNN direct access to structured action information during message passing. The network doesn't have to *infer* action applicability from predicate patterns—it's explicitly represented.
-
-**The ablation result is stark**: removing action nodes drops performance from 89% to 7% on hard problems. This single design choice accounts for the largest performance gain in our system.
-
-### 2. GNN Encoder with Global Context
-
-Our GNN processes the graph through 9 rounds of message passing. Each round updates edges, then nodes, then a global summary vector:
-
-$$\mathbf{e}^{l+1}_{ij} = \phi_e([\mathbf{e}^l_{ij}; \mathbf{v}^l_i; \mathbf{v}^l_j; \mathbf{g}^l])$$
-
-$$\mathbf{v}^{l+1}_i = \phi_v([\mathbf{v}^l_i; \text{AGG}(\{\mathbf{e}^{l+1}_{ij}\}); \mathbf{g}^l])$$
-
-$$\mathbf{g}^{l+1} = \phi_g([\mathbf{g}^l; \text{AGG}(\{\mathbf{v}^{l+1}_i\}); \text{AGG}(\{\mathbf{e}^{l+1}_{ij}\})])$$
-
-The **global node** $\mathbf{g}$ is crucial. As problems scale up, graphs get larger, but the number of GNN rounds stays fixed at 9. Without a global node, information from distant parts of the graph would never reach each other. The global node acts as a communication shortcut—every node reads from it and writes to it at every round.
-
-Removing the global node cuts performance roughly in half on hard problems (89% → 42%).
-
-### 3. Conditional GRU Decoder
-
-Here's a subtlety that matters more than you'd expect. Consider the action `drive(truck1, cityA, cityB)`. Selecting `truck1` constrains which cities make sense. Selecting `cityA` as the origin further constrains `cityB`. Parameters are *interdependent*.
-
-Our decoder uses a GRU (Gated Recurrent Unit) that builds actions sequentially:
-
-1. Initialize hidden state from the global graph embedding
-2. Score all action schemas → select one (e.g., "drive")
-3. Update hidden state with selected action's embedding
-4. Score all objects for parameter 1 → select one (e.g., "truck1")
-5. Update hidden state with selected object's embedding
-6. Score all objects for parameter 2 → select one (e.g., "cityA")
-7. Continue until all parameters are filled
-
-Each selection is conditioned on all previous selections through the GRU's hidden state. We use beam search (width 2) to maintain multiple candidates.
-
-Removing conditional decoding drops performance from 89% to 60% on hard problems—and the effect is most pronounced in domains with complex inter-parameter dependencies like Logistics and Rovers.
+The fundamental mismatch is that **explanations are generated as monologues, but understanding happens through dialogue**.
 
 ---
 
-## Results: What the Numbers Actually Mean
+## The Idea: Explanations as Databases
 
-### Generalization That Actually Works
+Our paper, *GLARE: A Natural Language Interface for Querying Global Explanations*, starts from a simple observation:
 
-| Difficulty | GABAR | GPL (Value) | ASNets | GRAPL | OpenAI O3 | Gemini 2.5 |
-|:-----------|:-----:|:-----------:|:------:|:-----:|:---------:|:----------:|
-| Easy       | 95.5% | 79.1%       | 76.0%  | 43.5% | 33.4%     | 44.0%      |
-| Medium     | 92.2% | 28.5%       | 65.4%  | 29.3% | 11.6%     | 17.1%      |
-| Hard       | 89.2% | 6.5%        | 48.5%  | 22.1% | 0.4%      | 1.5%       |
+> Global explanations have relational structure. They describe relationships between objects, classes, images, and decision boundaries. This is exactly the kind of data that databases are designed to store and query.
 
-The coverage drop from easy to hard for GABAR is minimal: 95.5% → 89.2%. Compare this to GPL (79% → 6.5%) or state-of-the-art LLMs (33-44% → 0.4-1.5%).
+So instead of presenting explanations as a document to be read, we ingest them into a relational database. Each local explanation (a Minimal Sufficient Explanation, or MSX) becomes a row in a table. Objects, classes, confidence scores, and image IDs become columns. Suddenly, questions that would require a PhD student hours of manual analysis become SQL queries that execute in milliseconds.
 
-On Blocks World, Gripper, and Miconic, GABAR achieves **100% success rate at all difficulty levels**—solving 40-block, 100-ball, and 100-passenger problems after training on instances with fewer than 10 objects.
+The second observation is about LLMs. Everyone is using LLMs to *generate* explanations. We think this is the wrong job for them. LLMs hallucinate. When you ask an LLM to explain a model's behavior, it produces plausible-sounding text that may have nothing to do with how the model actually works.
 
-### Plan Quality, Not Just Coverage
+**KEY INSIGHT**: Use LLMs as *semantic parsers*, not generators. The LLM translates natural language questions into SQL. The answers come from the actual explanation data. The LLM never touches the content of the explanation—it only handles the *form* of the query.
 
-GABAR doesn't just solve more problems—it solves them *well*. The Plan Quality Ratio (plan length from Fast Downward / plan length from GABAR) stays at ~1.0 across all difficulties, meaning GABAR's plans are comparable in length to those from a state-of-the-art satisficing planner. On several domains, GABAR actually produces *shorter* plans than Fast Downward's LAMA configuration.
-
-### The LLM Comparison
-
-We tested OpenAI's O3 and Gemini 2.5 Pro using one-shot prompting. Both essentially collapse on hard problems (0.4% and 1.5% coverage). This isn't surprising—LLMs lack the structural inductive bias needed for systematic relational reasoning over large state spaces. They can pattern-match small planning problems from training data but cannot compose solutions for novel large instances.
+This gives you the best of both worlds: the flexibility of natural language input with the formal correctness of database queries. No hallucination possible, because every answer is computed deterministically from ground-truth data.
 
 ---
 
-## The Deeper Lessons: Invariants for Other Research
+## How It Works: A Walkthrough
 
-Beyond the specific results, GABAR demonstrates several principles that apply broadly.
+Let me trace through a concrete example to make this tangible.
 
-### 1. Local Objectives Can Beat Global Ones
+A user asks:
 
-The most powerful lesson: you often don't need to learn the globally optimal function. If your downstream task only requires *local decisions*, formulate your learning objective locally.
+> "What percentage of bedroom images contain both bed and wall?"
 
-This applies far beyond planning:
-- **Recommendation systems**: Rank the items on *this page*, don't learn absolute item values
-- **Dialogue systems**: Rank the next *response candidates*, don't model the entire conversation value
-- **Compiler optimization**: Rank the transformations applicable *now*, don't estimate total program quality
+Here's what happens inside GLARE:
 
-The mathematical intuition: a local ranking function needs to be consistent only within each decision point's option set. A global value function needs consistency across *all* possible inputs. The former is a strictly easier learning problem.
+**Step 1: Query parsing.** The fine-tuned LLM (Gemma 2-9B) receives the question along with a system prompt containing the database schema and allowed entity names. It identifies this as a "boolean AND percentage" query template and extracts the parameters: class = `bedroom`, objects = `bed`, `wall`.
 
-### 2. Represent What You're Deciding About
+**Step 2: SQL generation.** The LLM outputs SQL between special fence markers:
 
-GABAR's largest performance gain comes from explicitly representing actions in the input. This seems obvious in retrospect: if you want to rank actions, give the network direct access to action structure.
+```sql
+SQL_START
+SELECT ROUND(COUNT(DISTINCT CASE WHEN io1.object_name = 'bed'
+  AND io2.object_name = 'wall' THEN i.image_id END) * 100.0
+  / COUNT(DISTINCT i.image_id), 2) AS percentage
+FROM images i
+JOIN image_objects io1 ON i.image_id = io1.image_id
+JOIN image_objects io2 ON i.image_id = io2.image_id
+WHERE i.class_name = 'bedroom'
+SQL_END
+```
 
-More generally: **your input representation should explicitly encode the entities you're making decisions about**. If you're selecting among candidate programs, represent program structure. If you're choosing among robot trajectories, represent trajectory features. Don't make the network reconstruct this information from indirect signals.
+**Step 3: Validation and execution.** The SQL is parsed for syntactic correctness, checked for safety, and executed against the explanation database.
 
-### 3. Structure Your Decoder to Match Your Output Structure
+**Step 4: Response generation.** The result is formatted as: *"73.2% of bedroom images contain both bed and wall."* alongside supporting evidence images with highlighted objects.
 
-Actions have structure—a schema and ordered parameters with dependencies. Our GRU decoder respects this structure by building actions sequentially, conditioning each choice on previous ones.
-
-The principle: **if your output has compositional structure, decode it compositionally**. This is why autoregressive language models work for text, why graph-to-sequence models work for molecules, and why our conditional decoder works for planning actions.
-
-### 4. Global Context Nodes Enable Fixed-Depth Architectures to Scale
-
-The global node is a simple idea with outsized impact. It lets a fixed-depth GNN (9 layers) process arbitrarily large graphs by providing a "shortcut" for information flow.
-
-This pattern appears in many architectures:
-- [CLS] tokens in transformers
-- Global pooling in graph networks
-- Memory cells in neural Turing machines
-
-If your architecture has fixed depth but variable-size inputs, consider adding an explicit global aggregation mechanism.
-
-### 5. Train on Easy, Deploy on Hard
-
-GABAR is trained exclusively on problems that are trivial for classical planners (solved in milliseconds). The training data is essentially free—no human labeling, no expensive computation, just run a planner on small instances.
-
-This "easy instances as training signal" paradigm works when:
-- The underlying patterns are **compositional** (small-scale structure composes into large-scale behavior)
-- Your architecture has appropriate **inductive biases** (GNNs handle variable-size relational inputs)
-- Your learning objective **doesn't fight scaling** (local ranking vs. global values)
+The critical property: **the LLM never sees the explanation data**. It only translates the question into a formal query. The data remains the single source of truth.
 
 ---
 
-## What This Means Going Forward
+## The Training Pipeline: How You Teach an LLM SQL Without Any Manual Annotation
 
-### For the Planning Community
+One of the biggest challenges was generating training data. We needed thousands of (question, SQL) pairs, but manually writing them would be tedious and wouldn't scale to new datasets.
 
-GABAR shows that learned policies can be practical for large planning problems. The 89% success rate on hard instances—combined with plan quality matching classical planners—suggests that learned policies are ready to be taken seriously as planning tools, not just research curiosities.
+Our solution: **fully synthetic training data**.
 
-The approach also complements classical planners rather than replacing them: GABAR uses planners to generate training data, then handles the problems those planners can't solve in reasonable time.
+We define 24 query templates organized into three tiers:
 
-### For the ML Community
+- **Core queries**: Object frequency, boolean combinations, top-k ranking, co-occurrence
+- **Extended queries**: N-way combinations (self-joins), cross-class comparison, set operations, conditional co-occurrence
+- **Contrastive queries**: Absence analysis, threshold filtering, distinguishing features, counterfactual reasoning
 
-The action ranking vs. value learning comparison is a concrete case study in how reformulating the learning objective—without changing the training data or model capacity—can dramatically improve generalization. This is a reminder that the choice of *what* to learn matters as much as *how* to learn it.
+Each template is a function that takes random parameters (class names, object names, thresholds) and outputs both a natural language question and the corresponding SQL. We generate 50,000 training examples this way. No human annotation. No expensive labeling.
 
-### For Anyone Building Systems That Generalize
+But there's a subtlety. If you fine-tune on these examples naively, the model might memorize associations between specific entity names and SQL patterns. It would learn "when you see 'bed', put 'bed' in the WHERE clause" rather than "when you see an object name, put it in the WHERE clause."
 
-The combination of structural representation + local objectives + compositional decoding is a recipe that extends beyond planning. Any domain where:
-- Inputs are relational and variable-sized
-- Decisions are local (choosing among current options)
-- Outputs have compositional structure
+Our solution is **fence-based loss masking**. During fine-tuning, we wrap the target SQL in special markers (`SQL_START` / `SQL_END`) and compute the training loss *only on the SQL tokens*. The model never receives gradient signal for the prompt tokens (which contain entity names and natural language). This forces it to learn the *relational algebra* of querying—the structural mapping from question patterns to SQL patterns—rather than dataset-specific vocabulary associations.
 
-...is a candidate for this approach. Molecular design, program synthesis, robotic task planning, network optimization—the pattern applies widely.
+The proof is in the transfer results: a model trained entirely on ADE20K (with objects like "wall", "bed", "stove") transfers to Pascal VOC (with objects like "lear", "torso", "rhand") at **90.6% accuracy**. It has never seen these entity names during training. It learned the structure, not the vocabulary.
 
 ---
 
-## Technical Details (For Those Who Want Them)
+## Results: What Actually Works (and What Doesn't)
 
-- **Training**: Adam optimizer, lr = 0.0005, batch size 16, hidden dim 64
-- **Architecture**: 9 GNN rounds, beam width 2, attention-based aggregation
-- **Data**: ~3,000-7,000 training examples per domain, generated by solving random small PDDL instances
-- **Training time**: 1-2 hours per domain on a single RTX 3080
-- **Evaluation**: 8 standard planning benchmarks (Blocks, Gripper, Miconic, Spanner, Logistics, Rovers, Visitall, Grid)
-- **Cycle avoidance**: Maintains visited state history; falls back to next-ranked action if top choice leads to visited state
+### The Headline Numbers
+
+On 500 held-out test queries from the ADE20K domain:
+
+- **Gemma 2 (9B) fine-tuned**: 95.2% result-match accuracy, 100% fence detection, 100% SQL parse rate, 100% execution rate
+- **Gemma 2 (2B) fine-tuned**: 95.4% — identical to the 27B model
+- **Qwen 2.5 (14B) fine-tuned**: 95.4%
+- **Base models (no fine-tuning)**: Near 0% across the board
+
+Several things stand out:
+
+1. **Performance saturates early.** 2B, 9B, and 27B all hit ~95%. GLARE's query mapping is learnable even by small models.
+2. **Base models achieve near zero.** Even Gemma 2-27B scores 0.0% on result-match. Our task requires learning the specific schema and template structures. The synthetic training pipeline is essential.
+3. **There's a minimum capacity threshold.** Qwen 2.5 at 0.5B achieves only 4.4%. Below ~2B parameters, models can't reliably learn the mapping.
+
+### Per-Query-Type Breakdown
+
+The model achieves **100% accuracy on 18 of 25 query types**. The two weakest:
+
+- **N-way combinations** (49%): Multi-way self-joins with ordering constraints
+- **Exact count queries** (43%): HAVING clauses with exact equality
+
+These failure modes are informative: the model struggles precisely where SQL requires exact structural precision in rarely-seen patterns. The fix is straightforward—increase sampling frequency for these templates.
+
+### Robustness
+
+Tested against 7 perturbation types:
+
+| Perturbation | Robustness |
+|:-------------|:----------:|
+| Synonym substitution | 100% |
+| Verbose padding | 97% |
+| Spelling errors | 89% |
+| Telegraphic | 84% |
+| Word swap | 82% |
+| Grammar corruption | 76% |
+| Word drop | 48% |
+
+The learned SQL mapping is largely invariant to lexical and syntactic surface variation. Word drop (48%) is the outlier, but this makes sense: removing entity names destroys the information needed for correct SQL. Low robustness to information-destroying perturbations is a correct property, not a bug.
+
+### Zero-Shot Cross-Dataset Transfer
+
+Trained on ADE20K, tested on Pascal VOC (completely different vocabulary):
+
+| Model | Transfer Accuracy |
+|:------|:-----------------:|
+| Gemma 2 (27B) | 90.6% |
+| Gemma 2 (2B) | 90.0% |
+| Qwen 2.5 (14B) | 90.0% |
+| Gemma 2 (9B) | 89.6% |
+| Qwen 2.5 (7B) | 87.2% |
+
+Even 2B models transfer at 90%. The model learned SQL's compositional structure, not entity associations.
+
+---
+
+## The Deeper Lessons: What Generalizes Beyond This Paper
+
+### 1. Use LLMs for Structure, Not Content
+
+When you need both flexibility and faithfulness, **use the LLM to handle structure and let a deterministic system handle content**. GLARE uses the LLM to parse natural language into SQL (structural mapping). The answers come from database execution (deterministic content). This eliminates hallucination by construction.
+
+This pattern applies broadly:
+- **Medical diagnosis support**: LLM parses symptoms into database queries over clinical guidelines
+- **Legal research**: LLM translates legal questions into structured searches over case law
+- **Financial analysis**: LLM converts questions into queries over verified financial data
+
+### 2. Synthetic Data + Structural Loss Masking = Domain-Agnostic Learning
+
+The combination of synthetic training data and fence-based loss masking produces a model that learns *task structure* rather than *domain vocabulary*. The recipe:
+
+1. Generate training examples synthetically by sampling parameters from templates
+2. Mask the loss to focus only on structural output (SQL), not parameter values
+3. At deployment, provide new parameter values in the prompt
+
+This is viable for any domain where *structure* is fixed but *vocabulary* changes: code generation for different APIs, form filling for different schemas, query generation for different databases.
+
+### 3. Template Taxonomies Beat End-to-End Generation
+
+We chose 24 templates over arbitrary SQL generation. This gives:
+- **Perfect coverage** on supported types (100% on 18/25)
+- **Graceful degradation** on unsupported types (99.3% execution rate)
+- **Easy extensibility**: one template + regenerate data
+- **Formal guarantees**: every SQL is a valid template instance
+
+The principle: **constrained generation with broad template coverage beats unconstrained generation for safety-critical applications**.
+
+### 4. Explanation is a Query Problem, Not a Generation Problem
+
+The broadest conceptual contribution: rethink what "explainability" means. The dominant paradigm is generation—compute an explanation, present it. But this treats users as passive consumers.
+
+GLARE reframes explanation as **query answering**. The explanation data exists (computed once). The interface helps users ask the right questions and retrieve relevant slices. This aligns with research showing human explanation-seeking is iterative, question-driven, and contrastive.
+
+### 5. The Minimum Viable Model Is Smaller Than You Think
+
+2B parameters = 27B parameters for this task. For well-defined structural tasks (as opposed to open-ended generation), model capacity saturates quickly. If you can define your task precisely enough, you can serve it cheaply.
+
+---
+
+## What We'd Do Differently (and What's Next)
+
+**Multi-turn dialogue.** GLARE handles single questions. Real explanation-seeking is iterative. Supporting conversational context is the natural next step.
+
+**Broader explanation types.** We demonstrated with DNF-based explanations. The database schema should extend to concept-based, prototype, and counterfactual explanation formats.
+
+**User studies.** We evaluated SQL accuracy but haven't measured whether users *understand models better* with GLARE vs. traditional dashboards. Task-level human evaluation is the missing piece.
+
+**Handling informal language.** The 12% accuracy on informal register is a practical gap. Expanding the synthetic data generator's register coverage is straightforward engineering.
 
 ---
 
 ## Summary
 
-GABAR demonstrates that a simple conceptual shift—from global value functions to local action ranking—combined with the right structural inductive biases, enables learned planning policies that genuinely generalize. The system trains on toy problems and solves real ones, maintains high plan quality as it scales, and substantially outperforms both classical learning baselines and state-of-the-art LLMs.
+GLARE demonstrates that the bottleneck in explainable AI is not generating better explanations—it's making existing explanations accessible. By treating global explanations as relational databases and using LLMs as semantic parsers (not content generators), we build an interface that:
 
-The broader takeaway: when you're building a system that needs to generalize, ask yourself—am I trying to learn something harder than I need to? Can I reformulate my objective to be *local* rather than *global*? Can I represent my decision space *explicitly* rather than *implicitly*? Can I decode my outputs *compositionally* rather than *monolithically*?
+- Achieves 95% query accuracy across diverse question types
+- Transfers to new datasets at 90.6% without retraining
+- Handles spelling errors, synonyms, and verbose input gracefully
+- Eliminates hallucination by construction, not by hope
+- Runs on 2B-parameter models with no performance loss
 
-If the answer to any of these is yes, you might be working harder than necessary.
+The broader lesson: when you need trustworthy answers from flexible input, let the LLM handle structure and let a verified system handle content. This "LLM as parser" pattern sidesteps the hallucination problem entirely and applies far beyond explainability.
+
+The even broader lesson: if your users are drowning in information, the solution isn't better information—it's a better question-and-answer interface. Explanations aren't documents. They're databases waiting for the right query.
 
 ---
 
-*This work was presented at NeurIPS 2025. Paper, code, and project page available at [project website link].*
-
-*Supported by the Army Research Office under grant W911NF2210251.*
+*Paper and code available at the project website.*
