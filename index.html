@@ -12,10 +12,10 @@
   </script>
 
   <meta charset="utf-8">
-  <meta name="description" content="Graph Neural Network Based Action Ranking for Planning">
-  <meta name="keywords" content="graph neural networks (GNN), policy learning, planning, relational learning, GABAR">
+  <meta name="description" content="GLARE: A Natural Language Interface for Querying Global Explanations">
+  <meta name="keywords" content="explainable AI, XAI, global explanations, natural language interface, LLM, text-to-SQL, GLARE">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Graph Neural Network Based Action Ranking for Planning </title>
+  <title>GLARE: A Natural Language Interface for Querying Global Explanations</title>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
         rel="stylesheet">
@@ -27,17 +27,17 @@
   <link rel="stylesheet" href="./static/css/index.css">
 
   <link rel="icon" href="./resources/favicon.ico">
-  
+
   <script src="https://kit.fontawesome.com/006a5775d5.js" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
   <style>
-    /* --- NEW Accordion Dropdown Styles --- */
+    /* --- Accordion Dropdown Styles --- */
     .section-toggle {
         font-size: 0.8rem;
         font-weight: normal;
         cursor: pointer;
-        color: #3273dc; /* Bulma link color */
+        color: #3273dc;
         margin-left: 15px;
         vertical-align: middle;
         text-decoration: none;
@@ -46,9 +46,8 @@
         text-decoration: underline;
     }
 
-    /* This is the new card container */
     .dropdown-item {
-        margin-bottom: 1rem; /* Add spacing between dropdowns */
+        margin-bottom: 1rem;
     }
 
     .dropdown-header {
@@ -56,47 +55,43 @@
         font-weight: 600;
         cursor: pointer;
         padding: 15px 20px;
-        
+
         display: flex;
-        align-items: center; /* Vertically center icon and text */
-        justify-content: space-between; /* Pushes icon to the right */
+        align-items: center;
+        justify-content: space-between;
 
         background-color: #ffffff;
         border: 1px solid #dbdbdb;
         border-radius: 5px;
         box-shadow: 0 3px 5px rgba(0,0,0,0.03);
-        
+
         transition: all 0.2s ease-in-out;
     }
-    
+
     .dropdown-header:hover {
         background-color: #f9f9f9;
         box-shadow: 0 5px 8px rgba(0,0,0,0.05);
         transform: translateY(-2px);
     }
-    
-    /* Style the text part of the header to wrap properly */
+
     .header-text {
-        flex-grow: 1; /* Allows text to take up available space */
-        padding-right: 15px; /* Space between text and icon */
-        /* This part is critical for mobile */
+        flex-grow: 1;
+        padding-right: 15px;
         word-break: break-word;
     }
 
-    /* Style the icon */
     .dropdown-header .icon {
-        flex-shrink: 0; /* Prevents icon from shrinking */
+        flex-shrink: 0;
         transition: transform 0.2s ease-in-out;
         font-size: 1rem;
-        color: #7a7a7a; /* Make icon a bit subtler */
+        color: #7a7a7a;
     }
 
-    /* Animate the icon when active */
     .dropdown-header.active .icon {
         transform: rotate(180deg);
     }
     .dropdown-header.active {
-        background-color: #f5f5ff; /* Lightened active color */
+        background-color: #f5f5ff;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
     }
@@ -106,32 +101,26 @@
         padding: 20px 25px;
         background-color: #ffffff;
         border: 1px solid #dbdbdb;
-        border-top: none; /* Avoid double border */
-        
-        /* Connect it to the header */
-        margin-top: -1px; 
+        border-top: none;
+
+        margin-top: -1px;
         border-radius: 0 0 5px 5px;
-        
-        /* Remove old border-left styles */
+
         margin-left: 0;
         border-left: none;
     }
     .dropdown-content p, .dropdown-content ul {
         font-size: 1rem;
         line-height: 1.6;
-        
-        /* --- THIS IS THE NEW FIX --- */
-        white-space: normal;  /* Resets any 'nowrap' from conflicts */
-        word-break: break-word; /* Forces long words/text to wrap */
+        white-space: normal;
+        word-break: break-word;
     }
 
-    /* --- FIX FOR BIBTEX OVERFLOW --- */
     pre, code {
-        white-space: pre-wrap;  /* Allows preformatted text to wrap */
-        word-break: break-all; /* Breaks long strings if necessary */
+        white-space: pre-wrap;
+        word-break: break-all;
     }
 
-    /* Keep specified images always visible */
     .visible-image {
         margin: 20px auto;
         display: block;
@@ -141,26 +130,24 @@
         padding: 5px;
     }
 
-    /* Responsive images */
     img {
         max-width: 100%;
         height: auto;
     }
-    
-    /* Center the global toggle button */
+
     .global-toggle-container {
         text-align: center;
         padding: 10px 0;
     }
 
-    /* Styles for new HTML results tables */
+    /* Results table styles */
     .results-table-container {
         overflow-x: auto;
         margin: 25px 0;
     }
     .results-table {
         width: 100%;
-        min-width: 1000px; /* Ensure table is wide enough to scroll */
+        min-width: 700px;
         border-collapse: collapse;
         font-size: 0.85rem;
     }
@@ -174,30 +161,26 @@
         background-color: #f5f5f5;
         font-weight: 600;
     }
-    .results-table .domain-col {
+    .results-table .model-col {
         text-align: left;
         font-weight: 600;
-        min-width: 80px;
+        min-width: 120px;
     }
-    .results-table .diff-col {
+    .results-table .setting-col {
         font-weight: 600;
     }
-    
-    /* Color coding from LaTeX file */
-    .c-high { background-color: #00A3A1; color: white; } /* 90-100% */
-    .c-med { background-color: #64D1C6; } /* 75-89% */
-    .c-low { background-color: #C8F1EA; } /* 50-74% */
-    
-    .p-high { background-color: #BBA0E5; } /* 1.00+ */
-    .p-med { background-color: #DCC4F6; } /* 0.75-0.99 */
-    .p-low { background-color: #F4EBFC; } /* 0.50-0.74 */
-    
+
+    /* Color coding for metrics */
+    .c-high { background-color: #00A3A1; color: white; }
+    .c-med { background-color: #64D1C6; }
+    .c-low { background-color: #C8F1EA; }
+
+    .p-high { background-color: #BBA0E5; }
+    .p-med { background-color: #DCC4F6; }
+    .p-low { background-color: #F4EBFC; }
+
     .results-table .c-high strong { color: white !important; }
 
-    .results-table th[colspan] {
-        background-color: #e0e0e0;
-    }
-    
     .table-caption {
         font-size: 0.9rem;
         font-style: italic;
@@ -206,39 +189,11 @@
         text-align: left;
     }
 
-    /* New Table 2 Header Colors */
-    .header-baselines { background-color: #ffcccc !important; } /* Light Red */
-    .header-gabar { background-color: #ccffcc !important; } /* Light Green */
-    .header-ablations { background-color: #cceeff !important; } /* Light Blue */
+    .header-baselines { background-color: #ffcccc !important; }
+    .header-main { background-color: #ccffcc !important; }
+    .header-transfer { background-color: #cceeff !important; }
 
-    /* === Interactive Graph Widget Styles === */
-    .ig-widget { max-width: 960px; margin: 20px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-    .ig-widget-title { text-align: center; color: #333; margin-bottom: 4px; font-size: 1.1em; font-weight: 700; }
-    .ig-widget-sub { text-align: center; color: #777; font-size: 0.85em; margin-bottom: 14px; }
-    .ig-layout { display: flex; gap: 12px; align-items: stretch; justify-content: center; }
-    .ig-states { background: white; border-radius: 10px; padding: 16px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; width: 175px; flex-shrink: 0; }
-    .ig-states h4 { font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .ig-graph { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex: 1; }
-    .ig-graph h4 { font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center; }
-    .ig-arrow { font-size: 1.6em; color: #ccc; align-self: center; padding: 0 2px; }
-    .ig-block { cursor: pointer; }
-    .ig-block rect { transition: stroke-width 0.2s, filter 0.2s; }
-    .ig-node { cursor: pointer; }
-    .ig-node circle, .ig-node rect { transition: stroke-width 0.2s, filter 0.2s, opacity 0.3s; }
-    .ig-edge { transition: stroke-width 0.3s, opacity 0.3s; }
-    .ig-dimmed { opacity: 0.12 !important; }
-    .ig-highlighted circle, .ig-highlighted rect { stroke-width: 3.5px !important; filter: drop-shadow(0 0 5px rgba(0,0,0,0.25)); }
-    .ig-highlighted-block rect { stroke-width: 3px !important; filter: drop-shadow(0 0 6px rgba(0,0,0,0.3)); }
-    .ig-edge.ig-highlighted { stroke-width: 3.5px !important; opacity: 1 !important; }
-    .ig-tooltip { position: fixed; background: #333; color: white; padding: 8px 14px; border-radius: 6px; font-size: 0.8em; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 10000; max-width: 260px; line-height: 1.4; }
-    .ig-tooltip.visible { opacity: 1; }
-    .ig-legend { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 10px; gap: 4px 16px; max-width: 380px; margin-left: auto; margin-right: auto; }
-    .ig-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75em; color: #666; }
-    .ig-legend-dot { width: 11px; height: 11px; border-radius: 50%; }
-    .ig-legend-line { width: 16px; height: 3px; border-radius: 2px; }
-    .ig-instructions { text-align: center; color: #999; font-size: 0.78em; margin-top: 8px; font-style: italic; }
-
-    /* === Results Charts Styles === */
+    /* Results Charts Styles */
     .results-chart-container {
         margin: 20px 0;
         padding: 25px;
@@ -256,7 +211,7 @@
         gap: 10px;
     }
     .chart-label {
-        width: 140px;
+        width: 160px;
         font-size: 0.85em;
         font-weight: 600;
         color: #444;
@@ -324,39 +279,108 @@
     }
     .chart-divider {
         border-top: 1px solid #ddd;
-        margin: 8px 0 8px 150px;
+        margin: 8px 0 8px 170px;
+    }
+
+    /* Pipeline SVG styles */
+    .pipeline-container {
+        margin: 20px auto;
+        max-width: 860px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    /* Query example styles */
+    .query-example {
+        background: #f8f9fa;
+        border-left: 4px solid #3273dc;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-radius: 0 6px 6px 0;
+    }
+    .query-example .query-q {
+        font-weight: 600;
+        color: #3273dc;
+        margin-bottom: 5px;
+    }
+    .query-example .query-a {
+        color: #2d6a2e;
+        font-style: italic;
+    }
+    .query-example code {
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.88em;
+    }
+
+    /* Taxonomy node styles */
+    .taxonomy-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+    .taxonomy-card {
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    .taxonomy-card h4 {
+        margin: 0 0 8px 0;
+        font-size: 0.95em;
+        padding-bottom: 6px;
+        border-bottom: 2px solid;
+    }
+    .taxonomy-card.core h4 { color: #2980b9; border-color: #d4e6f1; }
+    .taxonomy-card.extended h4 { color: #27ae60; border-color: #d5f5e3; }
+    .taxonomy-card.contrastive h4 { color: #e67e22; border-color: #fdebd0; }
+    .taxonomy-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .taxonomy-card li {
+        font-size: 0.85em;
+        padding: 3px 0;
+        color: #555;
+    }
+
+    @media (max-width: 768px) {
+        .taxonomy-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
   </style>
 </head>
 <body>
-  
+
 <section class="hero">
   <div class="hero-body">
     <div class="container">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Graph Neural Network Based Action Ranking for Planning</h1>
+          <h1 class="title is-1 publication-title">GLARE: A Natural Language Interface for Querying Global Explanations</h1>
           <div class="is-size-4 publication-authors">
             <span class="author-block">
-              <a href="https://www.linkedin.com/in/rajeshdm/">Rajesh Mangananvar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <a href="https://web.engr.oregonstate.edu/~leestef/">Stefan Lee</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-              <a href="https://web.engr.oregonstate.edu/~afern/">Alan Fern</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-              <a href="https://web.engr.oregonstate.edu/~tadepall/">Prasad Tadepalli</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-
+              Anonymous Authors
               <br><br>
-              <img src="./resources/OSU_horizontal_2C_O_over_B.png" width="20%" alt="Oregon State University Logo" style="width: 20%; min-width: 150px;">
+              Anonymous University
             </span>
           </div>
 
           <h2 class="is-size-4 has-text-weight-bold has-text-success-dark mt-4 mb-4">
-            Shifts from learning global value functions to ranking local actions—a simpler, graph-based approach that generalizes from small training examples to much larger real-world problems, achieving 89% success on tasks 8× larger than training data (vs. 6.5% for value-based methods).
+            Transforms global model explanations from static artifacts into queryable databases&mdash;users ask natural language questions and receive structured answers with statistics, examples, and visualizations. Achieves 95% query accuracy, 90.6% zero-shot cross-dataset transfer, and 85% robustness to input perturbations.
           </h2>
 
           <div class="column has-text-centered">
             <div class="publication-links">
               <span class="link-block">
-                <a href="./resources/GABAR_NeurIPS_Camera_ready.pdf"
+                <a href="#"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fas fa-file-pdf"></i>
@@ -365,7 +389,7 @@
                 </a>
               </span>
               <span class="link-block">
-                <a href="https://arxiv.org/pdf/2412.04752"
+                <a href="#"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="ai ai-arxiv"></i>
@@ -374,7 +398,7 @@
                 </a>
               </span>
               <span class="link-block">
-                <a href="https://anonymous.4open.science/r/ltp-4741/"
+                <a href="#"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fab fa-github"></i>
@@ -403,8 +427,7 @@
         <h2 class="title is-2 has-text-centered">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            We propose a novel approach to learn relational policies for classical planning based on learning to rank actions. We introduce a new graph representation that explicitly captures action information and propose a Graph Neural Network (GNN) architecture augmented with Gated Recurrent Units (GRUs) to learn action rankings. Unlike value-function based approaches that must learn a globally consistent function, our action ranking method only needs to learn locally consistent ranking. Our model is trained on data generated from small problem instances that are easily solved by planners and is applied to significantly larger instances where planning is computationally prohibitive. Experimental results across standard planning benchmarks demonstrate that our action-ranking approach not only achieves better generalization to larger problems than those used in training but also outperforms multiple baselines (value function and action ranking) methods in terms of success rate and plan quality.
-
+            Global explanations help users understand how vision models behave across datasets, classes, and decision contexts. However, for modern deep neural networks, global explanations are often complex, voluminous, and difficult for users to meaningfully explore. We present GLARE, an LLM-based interactive explanation interface that enables natural language access to global explanations for black-box image classification models. Users ask natural language questions and receive concise, interpretable responses: natural language summaries with statistics, supporting local explanations, and visualizations aligned with the user's intent. The core of the interface is a large language model fine-tuned to map natural language queries to structured SQL queries over explanation databases. We evaluate the system's ability to accurately interpret user intent, its robustness to spelling errors and grammatical variations, and its generalization to new query types and datasets. Our results show over 95% accuracy on in-distribution queries, 90.6% zero-shot cross-dataset transfer, and 85% robustness to perturbations.
           </p>
         </div>
       </div>
@@ -416,336 +439,265 @@
   <div class="container">
     <div class="columns is-centered">
       <div class="column is-three-quarters">
-        
+
+        <!-- ============================================================ -->
+        <!-- SECTION 1: Why Natural Language for Explanations? -->
+        <!-- ============================================================ -->
         <div class="section-container">
-            <h2 class="title is-2">Why Learning for Planning?
+            <h2 class="title is-2">Why Natural Language for Explanations?
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
-            
+
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Classical planners struggle with scale:</b> Optimal search is computationally expensive and fails on large problems.
+                        <b>Global explanations are overwhelming:</b> A single class might have hundreds of logical rules&mdash;too many for any user to digest.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Traditional planners use search and heuristics. While they can find optimal solutions, they often struggle with scalability and become computationally expensive or too slow for large, complex problems.</p>
+                    <p>Modern global explanations for deep neural networks often consist of thousands of logical rules or prototypes. For example, a global explanation for a scene classifier might express that a "bedroom" is recognized via dozens of distinct object combinations: (bed &and; wall), (bed &and; curtain &and; lamp), etc. Presenting this entire "explanation dump" to a user induces cognitive overload and obscures the very insights it aims to reveal.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>PDDL structure enables sample-efficient learning:</b> GNNs can leverage relational structure to learn from thousands (not millions) of examples.
+                        <b>Users want answers, not artifacts:</b> People approach models with specific questions, not a desire to browse static summaries.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Unlike standard Reinforcement Learning, which can require millions of examples, the relational structure of PDDL (Planning Domain Definition Language) allows Graph Neural Networks (GNNs) to learn generalizable policies from just thousands of examples generated from small, easily-solved problems.</p>
+                    <p>Human explanation-seeking is an iterative, query-driven process. Users approach models with specific hypotheses: <em>"What features are necessary for the 'bedroom' class?"</em>, <em>"Does the model rely on background snow to classify wolves?"</em>, or <em>"Show me examples where the model relies on shape rather than texture."</em> Current XAI tools force users to manually filter and aggregate explanations to answer these questions.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Learn on small, apply to large:</b> The goal is to train on small instances (e.g., 6-block problems) and solve massive ones (e.g., 40-block problems).
+                        <b>Dialogue is natural:</b> Explanations are social&mdash;they emerge from interactive dialogue, not monologue.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>The core idea is to train a model on small problem instances (e.g., 6-9 block problems) and then apply that learned policy to solve significantly larger instances (e.g., 40-block problems) where classical planners fail.</p>
+                    <p>Research in social science shows that explanations are inherently interactive. Users naturally ask <em>"Why?"</em>, <em>"Why not?"</em>, and <em>"What if?"</em> questions. Static dashboards fail because they cannot anticipate the specific, context-dependent questions a user might have. A natural language interface aligns with how humans naturally seek and process explanations.</p>
                 </div>
             </div>
             <hr>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- SECTION 2: The Problem with Current XAI -->
+        <!-- ============================================================ -->
         <div class="section-container">
-            <h2 class="title is-2">The Problem with Existing Approaches
+            <h2 class="title is-2">The Problem with Current XAI
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
-            
+
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Value functions require global consistency:</b> Learning distance-to-goal for all states is NP-hard and generalizes poorly.
+                        <b>Local explanations miss the big picture:</b> Saliency maps explain one image but reveal nothing about systematic biases.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Many approaches try to learn a value function, V(s), that estimates the cost-to-goal from any state. This is extremely difficult because the function must be globally consistent, and since optimal planning is NP-hard, these value functions are hard to learn and often don't generalize well to larger problems.</p>
+                    <p>Local methods like Grad-CAM, SHAP, and concept bottleneck models explain specific instances (e.g., "Why was <em>this</em> image classified as a wolf?"). While useful for auditing single errors, they fail to reveal systemic biases, general reasoning patterns, or the diversity of strategies a model uses across a dataset.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Fixed architectures limit reasoning:</b> Models like ASNets have a fixed receptive field, failing to capture long-range dependencies.
+                        <b>Global explanations suffer from information overload:</b> High-fidelity global summaries can contain thousands of rules.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Models like Action Schema Networks (ASNets) use a fixed-depth receptive field. This design limits their ability to reason about long-range dependencies between objects and actions, which is crucial in complex problems.</p>
+                    <p>Global explanations summarize a model's behavior across the entire input space. Methods like decision trees, DNF formulas, or globally important concepts attempt this, but for deep networks trained on complex visual domains, these explanations become massive. Users cannot meaningfully browse or internalize thousands of logical clauses without filtering mechanisms.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Missing action structure:</b> Previous GNNs model state but ignore how actions explicitly relate to objects.
+                        <b>Generating explanations with LLMs risks hallucination:</b> Using LLMs to <em>create</em> explanations directly is unfaithful to the model.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Previous GNN approaches (like GPL) focus on state representations but do not explicitly model how actions themselves relate to objects. This misses critical information about action applicability and relationships.</p>
+                    <p>Some approaches use LLMs to directly generate natural language explanations. However, this risks hallucination&mdash;the LLM might produce plausible-sounding but incorrect explanations. GLARE avoids this by using the LLM as a <em>semantic parser</em> that maps questions to deterministic SQL queries. The answers come from the actual explanation data, not from the LLM's imagination.</p>
                 </div>
             </div>
             <hr>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- SECTION 3: GLARE's Key Insight -->
+        <!-- ============================================================ -->
         <div class="section-container">
-            <h2 class="title is-2">GABAR's Key Insight
+            <h2 class="title is-2">GLARE's Key Insight
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
 
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Rank actions, not states:</b> Learning a local, relative ranking of *applicable actions* is easier and more generalizable.
+                        <b>Treat explanations as a database, not a document:</b> Global explanations become a queryable relational database, not a static artifact.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Instead of learning a complex, globally consistent value function V(s) for all states, GABAR learns a simpler, locally consistent function to just rank the applicable actions in the *current* state. This is a more tractable and generalizable learning problem.</p>
+                    <p>Rather than viewing global explanations as a monolithic artifact to be passively consumed, GLARE ingests local explanations (Minimal Sufficient Explanations expressed as DNF formulas) into a relational database. This enables precise structural queries: frequency counts, co-occurrence analysis, cross-class comparisons, set operations, and counterfactual reasoning&mdash;all through standard SQL.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Explicit action representation:</b> The graph includes action nodes connected to their argument objects, encoding applicability.
+                        <b>LLMs as semantic parsers, not generators:</b> The LLM translates questions into SQL&mdash;answers come from data, not the model.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Our novel graph representation includes 'action nodes' that are explicitly connected to the 'object nodes' they take as arguments. This directly encodes action applicability and relational structure into the GNN.</p>
+                    <p>The LLM's role is to act as a <em>logic-constrained semantic parser</em>. Given a natural language question, it selects from a taxonomy of SQL query templates and extracts the relevant parameters (class names, object names, thresholds). The SQL is then executed against the explanation database deterministically. This ensures formal correctness: the flexibility of natural language does not come at the cost of accuracy.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Sequential parameter selection:</b> A GRU decoder builds actions step-by-step, capturing complex parameter dependencies.
+                        <b>Synthetic training enables zero-shot transfer:</b> Train on auto-generated data from one dataset, deploy on any new domain without retraining.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>A Gated Recurrent Unit (GRU)-based decoder constructs the final action step-by-step. It first selects an action schema (e.g., 'stack') and then sequentially selects each parameter (e.g., 'blockA', then 'blockB'), conditioning each choice on the previous ones. This handles complex dependencies between parameters.</p>
+                    <p>A key technical challenge is enabling deployment on new datasets without expensive manual annotation. GLARE generates 50,000 synthetic training examples from schema metadata alone. A "fence masking" technique during fine-tuning focuses learning exclusively on SQL structure (not entity names), teaching the model the <em>relational algebra</em> of explanation querying. This enables zero-shot transfer&mdash;a model trained on ADE20K transfers directly to Pascal VOC (a completely different object vocabulary) at 90.6% accuracy.</p>
                 </div>
             </div>
-            
-            <!-- Interactive Graph Widget -->
-            <div class="ig-widget" id="ig-widget-main">
-                <p class="ig-widget-title">How GABAR Converts a Planning State to a Graph</p>
-                <p class="ig-widget-sub">Hover over blocks in start/goal state to see corresponding graph elements. Start objects → actions + current predicates. Goal objects → goal predicates.</p>
-                <div class="ig-layout">
-                    <div class="ig-states">
-                        <h4>Start State</h4>
-                        <svg width="150" height="140" viewBox="0 0 150 140">
-                            <rect x="10" y="130" width="130" height="5" rx="2" fill="#4a90d9" opacity="0.4"/>
-                            <g class="ig-block" data-hover="start-O2"><rect x="25" y="85" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="51" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text></g>
-                            <g class="ig-block" data-hover="start-O3"><rect x="25" y="42" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="51" y="67" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text></g>
-                            <g class="ig-block" data-hover="start-O1"><rect x="90" y="85" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="116" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text></g>
-                        </svg>
-                        <h4 style="margin-top:8px;">Goal State</h4>
-                        <svg width="150" height="160" viewBox="0 0 150 160">
-                            <rect x="10" y="148" width="130" height="5" rx="2" fill="#4a90d9" opacity="0.4"/>
-                            <g class="ig-block" data-hover="goal-O1"><rect x="47" y="105" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="130" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text></g>
-                            <g class="ig-block" data-hover="goal-O2"><rect x="47" y="63" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text></g>
-                            <g class="ig-block" data-hover="goal-O3"><rect x="47" y="21" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="46" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text></g>
-                            <text x="75" y="158" text-anchor="middle" font-size="8.5" fill="#aaa">(dashed = goal)</text>
-                        </svg>
-                    </div>
-                    <div class="ig-arrow">→</div>
-                    <div class="ig-graph">
-                        <h4>Graph Representation</h4>
-                        <svg width="100%" viewBox="0 0 520 290" style="max-height:290px;">
-                            <!-- EDGES -->
-                            <line class="ig-edge" data-edge="action" data-connects="pickup O1" x1="390" y1="55" x2="390" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
-                            <line class="ig-edge" data-edge="action" data-connects="unstack O3" x1="130" y1="55" x2="130" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
-                            <line class="ig-edge" data-edge="action" data-connects="unstack O2" x1="130" y1="55" x2="260" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
-                            <line class="ig-edge" data-edge="current-pred" data-connects="on_O3O2 O3" x1="95" y1="220" x2="130" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="current-pred" data-connects="on_O3O2 O2" x1="95" y1="220" x2="260" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="current-pred" data-connects="clear_O3 O3" x1="225" y1="220" x2="130" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O2O1 O2" x1="355" y1="220" x2="260" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O2O1 O1" x1="355" y1="220" x2="390" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O3O2 O3" x1="470" y1="220" x2="130" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O3O2 O2" x1="470" y1="220" x2="260" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
-                            <!-- ACTION NODES (blue rectangles) -->
-                            <g class="ig-node" data-ntype="action" data-id="unstack" data-tip="Unstack(O3,O2): removes O3 from on top of O2. Connected to O3 and O2."><rect x="60" y="22" width="140" height="38" rx="6" fill="#4a90d9" stroke="#2d6eb5" stroke-width="2"/><text x="130" y="46" text-anchor="middle" font-size="12" fill="white" font-weight="700">Unstack(O3, O2)</text></g>
-                            <g class="ig-node" data-ntype="action" data-id="pickup" data-tip="PickUp(O1): picks up O1 from the table. Connected to O1."><rect x="325" y="22" width="130" height="38" rx="6" fill="#4a90d9" stroke="#2d6eb5" stroke-width="2"/><text x="390" y="46" text-anchor="middle" font-size="12" fill="white" font-weight="700">PickUp(O1)</text></g>
-                            <!-- OBJECT NODES (all same yellow) -->
-                            <g class="ig-node" data-ntype="object" data-id="O3" data-tip="Object O3: clear, on top of O2. Connected to Unstack, On(O3,O2), Clear(O3), and Goal:On(O3,O2)."><circle cx="130" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/><text x="130" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text></g>
-                            <g class="ig-node" data-ntype="object" data-id="O2" data-tip="Object O2: has O3 on top. Connected to Unstack, On(O3,O2), Goal:On(O2,O1), and Goal:On(O3,O2)."><circle cx="260" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/><text x="260" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text></g>
-                            <g class="ig-node" data-ntype="object" data-id="O1" data-tip="Object O1: clear, on table. Connected to PickUp and Goal:On(O2,O1)."><circle cx="390" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/><text x="390" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text></g>
-                            <!-- CURRENT PREDICATE NODES (red/pink) -->
-                            <g class="ig-node" data-ntype="current-pred" data-id="on_O3O2" data-tip="On(O3,O2): O3 is currently on top of O2."><rect x="40" y="218" width="110" height="30" rx="15" fill="#e57373" stroke="#c62828" stroke-width="1.5"/><text x="95" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">On(O3, O2)</text></g>
-                            <g class="ig-node" data-ntype="current-pred" data-id="clear_O3" data-tip="Clear(O3): O3 has nothing on top of it."><rect x="165" y="218" width="110" height="30" rx="15" fill="#e57373" stroke="#c62828" stroke-width="1.5"/><text x="220" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Clear(O3)</text></g>
-                            <!-- GOAL PREDICATE NODES (green) -->
-                            <g class="ig-node" data-ntype="goal-pred" data-id="g_on_O2O1" data-tip="Goal: On(O2,O1) — O2 needs to be placed on O1 to build the tower."><rect x="290" y="218" width="130" height="30" rx="15" fill="#4caf50" stroke="#2e7d32" stroke-width="1.5"/><text x="355" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Goal: On(O2, O1)</text></g>
-                            <g class="ig-node" data-ntype="goal-pred" data-id="g_on_O3O2" data-tip="Goal: On(O3,O2) — O3 should remain on O2 (already true)."><rect x="430" y="218" width="130" height="30" rx="15" fill="#4caf50" stroke="#2e7d32" stroke-width="1.5"/><text x="495" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Goal: On(O3, O2)</text></g>
-                        </svg>
-                        <div class="ig-legend">
-                            <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#4a90d9;"></div>Action node</div>
-                            <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#fff9c4;border:2px solid #f9a825;"></div>Object node</div>
-                            <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#e57373;border-radius:3px;"></div>Current predicate</div>
-                            <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#4caf50;border-radius:3px;"></div>Goal predicate</div>
-                            <div class="ig-legend-item"><div class="ig-legend-line" style="background:#4a90d9;"></div>Action-object edge</div>
-                            <div class="ig-legend-item"><div class="ig-legend-line" style="background:#e57373;border-top:2px dashed #e57373;height:0;"></div>Predicate-object edge</div>
-                            <div class="ig-legend-item"><div class="ig-legend-line" style="background:#4caf50;border-top:2px dashed #4caf50;height:0;"></div>Goal-predicate edge</div>
+
+            <!-- Example queries -->
+            <div class="query-example">
+                <div class="query-q">"What percentage of bedroom images contain both bed and wall?"</div>
+                <div class="query-a">GLARE &rarr; SQL query &rarr; "73.2% of bedroom images contain both bed and wall." + supporting evidence images with highlighted objects</div>
+            </div>
+            <div class="query-example">
+                <div class="query-q">"Which objects distinguish kitchen from dining room?"</div>
+                <div class="query-a">GLARE &rarr; SQL set difference &rarr; "Objects found in kitchen but not dining room: stove (82%), oven (61%), range hood (43%)..." + example images</div>
+            </div>
+            <hr>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SECTION 4: System Overview -->
+        <!-- ============================================================ -->
+        <div class="section-container">
+            <h2 class="title is-2">System Overview
+                <a class="section-toggle" data-action="expand">[Expand All]</a>
+            </h2>
+
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>Parse-Validate-Execute pipeline:</b> Questions flow through LLM parsing, SQL validation, database execution, and multimodal response.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>The system follows a structured pipeline: (1) A user poses a question in natural language. (2) The fine-tuned LLM translates it into a SQL query by selecting from predefined templates and extracting parameters. (3) The SQL is validated for correctness and safety. (4) The query is executed against the explanation database. (5) Results are returned as structured data along with a natural language summary, statistics, and supporting evidence images with highlighted objects.</p>
+                </div>
+            </div>
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>LLM-based query interpretation:</b> Gemma 2-9B fine-tuned with QLoRA and fence-based loss masking for SQL generation.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>We fine-tune Gemma 2-9B using QLoRA (4-bit quantization, LoRA rank 16). The model receives a system prompt with the database schema and available query templates, a user prompt with the question and allowed entity names, and generates SQL between <code>SQL_START</code> and <code>SQL_END</code> fence markers. During fine-tuning, a custom "fence-based loss masking" technique ignores all prompt tokens and focuses learning exclusively on the SQL generation tokens.</p>
+                </div>
+            </div>
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>24 query templates in 3 tiers:</b> Core, Extended, and Contrastive queries covering frequency, co-occurrence, set operations, and counterfactual analysis.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>The query templates are organized into three tiers of increasing complexity. Adding a new question type requires only defining a new SQL pattern and regenerating synthetic data&mdash;no manual annotation needed.</p>
+
+                    <div class="taxonomy-grid">
+                        <div class="taxonomy-card core">
+                            <h4>Core Queries</h4>
+                            <ul>
+                                <li>Object frequency (%)</li>
+                                <li>Boolean: AND, OR, NOT</li>
+                                <li>Top-k / Bottom-k ranking</li>
+                                <li>Co-occurrence with anchor</li>
+                                <li>Class ranking for object</li>
+                            </ul>
+                        </div>
+                        <div class="taxonomy-card extended">
+                            <h4>Extended Queries</h4>
+                            <ul>
+                                <li>N-way combos (self-joins)</li>
+                                <li>Cross-class comparison</li>
+                                <li>Set difference / intersection</li>
+                                <li>Conditional co-occurrence</li>
+                                <li>Confidence-filtered analysis</li>
+                            </ul>
+                        </div>
+                        <div class="taxonomy-card contrastive">
+                            <h4>Contrastive Queries</h4>
+                            <ul>
+                                <li>Absence analysis</li>
+                                <li>Threshold queries</li>
+                                <li>Distinguishing features</li>
+                                <li>Counterfactual reasoning</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <p class="ig-instructions">Hover over blocks (left) or graph nodes (right). Start-state blocks → actions + current predicates. Goal-state blocks → goal predicates.</p>
             </div>
-            <div class="ig-tooltip" id="ig-tooltip-main"></div>
-            <script>
-            (function() {
-                var root = document.getElementById('ig-widget-main');
-                var tooltip = document.getElementById('ig-tooltip-main');
-                var allNodes = root.querySelectorAll('.ig-node');
-                var allEdges = root.querySelectorAll('.ig-edge');
-                var allBlocks = root.querySelectorAll('.ig-block');
-                var startMap = {
-                    'start-O1': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: [] },
-                    'start-O2': { objects: ['O2'], actions: ['unstack'], currentPreds: ['on_O3O2'], goalPreds: [] },
-                    'start-O3': { objects: ['O3'], actions: ['unstack'], currentPreds: ['on_O3O2', 'clear_O3'], goalPreds: [] }
-                };
-                var goalMap = {
-                    'goal-O1': { objects: ['O1'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1'] },
-                    'goal-O2': { objects: ['O2'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1', 'g_on_O3O2'] },
-                    'goal-O3': { objects: ['O3'], actions: [], currentPreds: [], goalPreds: ['g_on_O3O2'] }
-                };
-                var nodeMap = {
-                    'pickup': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: [] },
-                    'unstack': { objects: ['O2', 'O3'], actions: ['unstack'], currentPreds: [], goalPreds: [] },
-                    'O1': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: ['g_on_O2O1'] },
-                    'O2': { objects: ['O2'], actions: ['unstack'], currentPreds: ['on_O3O2'], goalPreds: ['g_on_O2O1', 'g_on_O3O2'] },
-                    'O3': { objects: ['O3'], actions: ['unstack'], currentPreds: ['on_O3O2', 'clear_O3'], goalPreds: ['g_on_O3O2'] },
-                    'clear_O3': { objects: ['O3'], actions: [], currentPreds: ['clear_O3'], goalPreds: [] },
-                    'on_O3O2': { objects: ['O2', 'O3'], actions: [], currentPreds: ['on_O3O2'], goalPreds: [] },
-                    'g_on_O2O1': { objects: ['O1', 'O2'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1'] },
-                    'g_on_O3O2': { objects: ['O2', 'O3'], actions: [], currentPreds: [], goalPreds: ['g_on_O3O2'] }
-                };
-                function showTip(e, t) { tooltip.textContent = t; tooltip.classList.add('visible'); moveTip(e); }
-                function moveTip(e) { tooltip.style.left = (e.clientX + 12) + 'px'; tooltip.style.top = (e.clientY - 8) + 'px'; }
-                function hideTip() { tooltip.classList.remove('visible'); }
-                function highlight(m) {
-                    allNodes.forEach(function(n) { n.classList.add('ig-dimmed'); });
-                    allEdges.forEach(function(e) { e.classList.add('ig-dimmed'); });
-                    allBlocks.forEach(function(b) { b.classList.add('ig-dimmed'); });
-                    m.objects.forEach(function(id) {
-                        root.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); });
-                        root.querySelectorAll('.ig-block[data-hover*="'+id+'"]').forEach(function(b) { b.classList.remove('ig-dimmed'); b.classList.add('ig-highlighted-block'); });
-                    });
-                    m.actions.forEach(function(id) { root.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
-                    m.currentPreds.forEach(function(id) { root.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
-                    m.goalPreds.forEach(function(id) { root.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
-                    allEdges.forEach(function(edge) {
-                        var c = edge.dataset.connects.split(' '), et = edge.dataset.edge, h = false;
-                        if (et === 'action' && m.actions.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
-                        if (et === 'current-pred' && m.currentPreds.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
-                        if (et === 'goal-pred' && m.goalPreds.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
-                        if (h) { edge.classList.remove('ig-dimmed'); edge.classList.add('ig-highlighted'); }
-                    });
-                }
-                function clearAll() {
-                    allNodes.forEach(function(n) { n.classList.remove('ig-dimmed', 'ig-highlighted'); });
-                    allEdges.forEach(function(e) { e.classList.remove('ig-dimmed', 'ig-highlighted'); });
-                    allBlocks.forEach(function(b) { b.classList.remove('ig-dimmed', 'ig-highlighted-block'); });
-                }
-                allBlocks.forEach(function(block) {
-                    var key = block.dataset.hover;
-                    block.addEventListener('mouseenter', function(e) {
-                        var m = startMap[key] || goalMap[key]; if (m) highlight(m);
-                        var obj = key.split('-')[1];
-                        showTip(e, key.startsWith('goal') ? 'Goal: '+obj+' — see goal predicates (green)' : 'Current: '+obj+' — see actions & current predicates');
-                    });
-                    block.addEventListener('mousemove', moveTip);
-                    block.addEventListener('mouseleave', function() { clearAll(); hideTip(); });
-                });
-                allNodes.forEach(function(node) {
-                    var id = node.dataset.id;
-                    node.addEventListener('mouseenter', function(e) { var m = nodeMap[id]; if (m) highlight(m); showTip(e, node.dataset.tip); });
-                    node.addEventListener('mousemove', moveTip);
-                    node.addEventListener('mouseleave', function() { clearAll(); hideTip(); });
-                });
-            })();
-            </script>
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>Multimodal output:</b> Each response includes natural language, statistics, and evidence images with highlighted objects.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>For each query, GLARE returns three types of output: (1) A natural language summary with relevant statistics (e.g., "Sculptures in living rooms most often appear with walls (80%) followed by sofas (60%)"). (2) Supporting local explanation examples. (3) Visualizations aligned with the user's intent&mdash;including evidence images showing original images, important objects identified by local explanations, and masked images highlighting only the relevant objects.</p>
+                </div>
+            </div>
             <hr>
         </div>
 
-        <div class="section-container">
-            <h2 class="title is-2">Method Overview
-                <a class="section-toggle" data-action="expand">[Expand All]</a>
-            </h2>
-
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>Graph representation with 4 node types:</b> Objects, Predicates, Actions, and a Global node.
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-                    <p>The graph consists of Object, Predicate, Action, and one Global node. Edges represent predicate-object and action-object relationships, encoding the state, goal, and all potential actions.</p>
-                </div>
-            </div>
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>GNN encoder with attention:</b> L rounds of message passing update node embeddings, while a global node allows rapid information flow.
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-                    <p>The GNN performs L rounds of message passing (we use 9) where nodes and edges update their embeddings. Attention mechanisms weight the importance of different messages, and the global node aggregates graph-level information for rapid propagation.</p>
-                </div>
-            </div>
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>GRU decoder for action construction:</b> Sequentially selects an action schema, then its parameters, using beam search.
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-                    <p>The final global embedding is fed into a GRU decoder. It first selects the highest-scoring action schema, then autoregressively selects each object parameter. We use a beam search (width k=2) to explore multiple high-scoring actions in parallel.</p>
-                </div>
-            </div>
-            
-            <img src="./resources/gabar_framework.png" alt="GABAR Framework" class="visible-image" style="width: 80%;">
-            <hr>
-        </div>
-
+        <!-- ============================================================ -->
+        <!-- SECTION 5: Results -->
+        <!-- ============================================================ -->
         <div class="section-container">
             <h2 class="title is-2">Results
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
@@ -754,147 +706,195 @@
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Exceptional generalization:</b> Achieves 89.2% coverage on 'hard' problems, far exceeding baselines.
+                        <b>95.2% in-distribution accuracy:</b> Fine-tuned models achieve near-perfect structural metrics and high result-match rates.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>GABAR's coverage (success rate) drops minimally as problems get harder: 95.5% on Easy, 92.2% on Medium, and 89.2% on Hard. In contrast, baseline methods like GPL and GRAPL see their coverage collapse to 6.5% and 22.1% on hard problems, respectively.</p>
+                    <p>On 500 held-out test queries, Gemma 2-9B achieves 100% fence detection, 100% SQL parse rate, 100% execution rate, and 95.2% result-match accuracy. An additional 2.4% of examples achieve partial matches (Jaccard > 0.5), bringing effective accuracy above 97%. Performance saturates across model scales: Gemma 2 at 2B, 9B, and 27B all achieve ~95% accuracy.</p>
+                    <p><strong>Base models (without fine-tuning) achieve near-zero accuracy</strong>, confirming that our synthetic training pipeline is essential&mdash;not just pre-existing SQL knowledge.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Solves problems 8x larger than training:</b> Trained on 49-cell problems, solves 400-cell problems.
+                        <b>100% accuracy on 18 of 25 query types:</b> Perfect performance on percentages, ranking, co-occurrence, set operations, and more.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>In the Visitall domain, the model was trained on problems with 9-36 cells (up to 49 in validation). It successfully solved test problems with up to 400 cells, more than 8 times larger than the largest training instances, demonstrating powerful generalization.</p>
-                </div>
-            </div>
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>Outperforms modern LLMs:</b> GABAR achieves 89.2% on hard problems vs. 1.5% for Gemini-2.5-Pro.
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-                    <p>On hard test instances, LLMs like OpenAI-O3 and Gemini-2.5-Pro solve almost no problems (0.4% and 1.5% coverage, respectively). GABAR's architecture, which explicitly learns structural relationships, maintains 89.2% coverage, highlighting the limitations of pure pattern matching for complex reasoning.</p>
+                    <p>The per-query-type breakdown shows 100% accuracy on 18 of 25 evaluated query types, spanning percentage calculations, top-k ranking, co-occurrence joins, set operations, conditional existence checks, threshold filtering, and statistical aggregations. The two underperforming types (<code>combos</code> at 49% and <code>images_with_exact_count</code> at 43%) involve complex multi-way self-joins and exact-count HAVING clauses.</p>
                 </div>
             </div>
 
-            <!-- COVERAGE COMPARISON CHART -->
+            <!-- ACCURACY COMPARISON CHART -->
             <div class="results-chart-container">
                 <div class="chart-title">
-                    <h3>Coverage (% Problems Solved) by Difficulty</h3>
-                    <p>Averaged across 8 planning domains | 100 test problems per difficulty level</p>
+                    <h3>In-Distribution Result-Match Accuracy (%)</h3>
+                    <p>Fine-tuned models on ADE20K Fresh Test set (500 examples)</p>
                 </div>
 
-                <div class="difficulty-section">
-                    <div class="difficulty-header">Easy Problems</div>
-                    <div class="chart">
-                        <div class="chart-row">
-                            <div class="chart-label">GABAR (ours)</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 95.5%; background: #00A3A1;">95.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 79.1%; background: #7ab8b6;">79.1%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">ASNets</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 76%; background: #9ec5c4;">76.0%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GRAPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 43.5%; background: #bfd8d7;">43.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">Gemini 2.5 Pro</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 44%; background: #d4a0e5;">44.0%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">OpenAI O3</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 33.4%; background: #c490d8;">33.4%</div></div>
-                        </div>
+                <div class="chart">
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (9B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 95.2%; background: #00A3A1;">95.2%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (27B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 95.2%; background: #2ab8b6;">95.2%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (2B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 95.4%; background: #4dc9c7;">95.4%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Qwen 2.5 (14B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 95.4%; background: #7ab8b6;">95.4%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Qwen 2.5 (7B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 93%; background: #9ec5c4;">93.0%</div></div>
+                    </div>
+                    <div class="chart-divider" style="margin-left:0"></div>
+                    <div class="chart-row">
+                        <div class="chart-label" style="color:#c0392b;">Gemma 2 (9B) Base</div>
+                        <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 2%; background: #e74c3c;">0.2%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label" style="color:#c0392b;">Qwen 2.5 (7B) Base</div>
+                        <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 4%; background: #c0392b;">3.2%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label" style="color:#c0392b;">Qwen 2.5 (0.5B) FT</div>
+                        <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 5%; background: #922b21;">4.4%</div></div>
                     </div>
                 </div>
-
-                <div class="difficulty-section">
-                    <div class="difficulty-header">Medium Problems</div>
-                    <div class="chart">
-                        <div class="chart-row">
-                            <div class="chart-label">GABAR (ours)</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 92.2%; background: #00A3A1;">92.2%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 28.5%; background: #7ab8b6;">28.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">ASNets</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 65.4%; background: #9ec5c4;">65.4%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GRAPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 29.3%; background: #bfd8d7;">29.3%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">Gemini 2.5 Pro</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 17.1%; background: #d4a0e5;">17.1%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">OpenAI O3</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 11.6%; background: #c490d8;">11.6%</div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="difficulty-section">
-                    <div class="difficulty-header">Hard Problems (up to 8x training size)</div>
-                    <div class="chart">
-                        <div class="chart-row">
-                            <div class="chart-label">GABAR (ours)</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 89.2%; background: #00A3A1;">89.2%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 6.5%; background: #7ab8b6;">6.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">ASNets</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: 48.5%; background: #9ec5c4;">48.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">GRAPL</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 22.1%; background: #bfd8d7;">22.1%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">Gemini 2.5 Pro</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 3%; background: #d4a0e5;">1.5%</div></div>
-                        </div>
-                        <div class="chart-row">
-                            <div class="chart-label">OpenAI O3</div>
-                            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 2%; background: #c490d8;">0.4%</div></div>
-                        </div>
-                    </div>
-                </div>
-                <p class="chart-caption">GABAR maintains ~89% coverage on hard problems while all baselines and LLMs collapse below 50%.</p>
+                <p class="chart-caption">Fine-tuned models achieve ~95% accuracy across scales. Base models score near 0%, confirming the value of synthetic training. A minimum model capacity (~2B+ params) is required.</p>
             </div>
 
-            <!-- Detailed Tables (Collapsed by Default) -->
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>View Full Results Table (Table 2):</b> GABAR vs. Baselines and Ablations by Domain
+                        <b>Robust to input perturbations:</b> 100% robustness to synonyms, 97% to verbose padding, 89% to spelling errors.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>The model is tested against 7 perturbation types: synonym substitution (100% robustness), verbose padding (97%), spelling errors (89%), telegraphic compression (84%), word swap (82%), grammar corruption (76%), and word drop (48%). Word drop is inherently damaging&mdash;removing object or class names destroys the information needed for correct SQL. Paraphrase consistency reaches 94.1%, and all sanity checks pass (100%).</p>
+                </div>
+            </div>
+
+            <!-- ROBUSTNESS CHART -->
+            <div class="results-chart-container">
+                <div class="chart-title">
+                    <h3>Robustness to Input Perturbations</h3>
+                    <p>% of baseline accuracy preserved under each perturbation (Gemma 2-9B)</p>
+                </div>
+
+                <div class="chart">
+                    <div class="chart-row">
+                        <div class="chart-label">Synonym substitution</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 100%; background: #27ae60;">100%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Verbose padding</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 97%; background: #2ecc71;">97%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Spelling errors</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 89%; background: #f39c12;">89%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Telegraphic</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 84%; background: #e67e22;">84%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Word swap</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 82%; background: #e67e22;">82%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Grammar corruption</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 76%; background: #e74c3c;">76%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Word drop</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 48%; background: #c0392b;">48%</div></div>
+                    </div>
+                </div>
+                <p class="chart-caption">The learned SQL mapping is largely invariant to lexical and syntactic surface variation. Word drop is inherently destructive&mdash;removing entity names eliminates the information needed for correct SQL.</p>
+            </div>
+
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>Zero-shot cross-dataset transfer at 90.6%:</b> Trained on ADE20K, tested on Pascal VOC with a completely different vocabulary&mdash;no retraining.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>The model, trained exclusively on ADE20K entity names (150 objects, 20 scene classes), is tested on a database built from Pascal VOC (166 objects, different scene taxonomy). Gemma 2-27B achieves 90.6% result-match accuracy with perfect structural metrics. This is the strongest evidence that the model learns generalizable <em>relational structure</em>&mdash;SQL's compositionality separates query structure from vocabulary, enabling deployment on any new database without retraining.</p>
+                </div>
+            </div>
+
+            <!-- CROSS-DATASET CHART -->
+            <div class="results-chart-container">
+                <div class="chart-title">
+                    <h3>Cross-Dataset Transfer: ADE20K &rarr; Pascal VOC</h3>
+                    <p>Models trained on ADE20K, tested on Pascal VOC (completely different object vocabulary)</p>
+                </div>
+
+                <div class="chart">
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (27B)</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 90.6%; background: #2980b9;">90.6%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (2B)</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 90%; background: #3498db;">90.0%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Qwen 2.5 (14B)</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 90%; background: #5dade2;">90.0%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Gemma 2 (9B)</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 89.6%; background: #85c1e9;">89.6%</div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label">Qwen 2.5 (7B)</div>
+                        <div class="chart-bar-container"><div class="chart-bar" style="width: 87.2%; background: #aed6f1;">87.2%</div></div>
+                    </div>
+                </div>
+                <p class="chart-caption">The model learns SQL's compositional structure, not dataset-specific entity associations. Even 2B-parameter models transfer at 90%.</p>
+            </div>
+
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>OOD generalization:</b> 45% on novel phrasing, 100% on some emergent compositions, graceful degradation on unseen SQL.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>Out-of-distribution evaluation probes two aspects: (1) Novel phrasing of trained patterns (45.1% match)&mdash;the model handles nested questions (90%), negations (70%), and zero-threshold queries (100%), but struggles with informal language (12%) and double negation (0%). (2) Novel SQL constructs absent from training (19.5% match)&mdash;chained filters (100%) and string patterns (100%) work via compositional generalization, while window functions and CASE expressions (0%) confirm the model cannot extrapolate to truly novel SQL syntax. Critically, even on unsupported constructs, the model maintains 99.3% execution rate by falling back to the closest known template&mdash;graceful degradation.</p>
+                </div>
+            </div>
+
+            <!-- Detailed Tables -->
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>View Full Results Table:</b> All models, base vs. fine-tuned, across all evaluation axes
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
@@ -902,619 +902,105 @@
                 </div>
                 <div class="dropdown-content">
                     <div class="table-caption">
-                        <b>Table 2 (from paper):</b> Main results showing GABAR vs. Baselines and Ablations.
-                    </div>
-            <div class="results-table-container">
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="3" class="domain-col">Domain</th>
-                            <th rowspan="3" class="diff-col">Diff</th>
-                            <th colspan="6" class="header-baselines">Baselines</th>
-                            <th colspan="2" class="header-gabar"><b>GABAR</b></th>
-                            <th colspan="6" class="header-ablations">Ablations</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2">GPL</th>
-                            <th colspan="2">ASNets</th>
-                            <th colspan="2">GRAPL</th>
-                            <th colspan="2"><b>GABAR</b></th>
-                            <th colspan="2">GABAR-ACT</th>
-                            <th colspan="2">GABAR-CD</th>
-                            <th colspan="2">GABAR-RANK</th>
-                        </tr>
-                        <tr>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Blocks</td><td class="diff-col">E</td>
-                            <td class="c-high">100</td><td class="p-high">1.1</td>
-                            <td class="c-high">100</td><td class="p-high"><b>1.6</b></td>
-                            <td class="c-low">64</td><td class="p-low">0.65</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high">1.5</td>
-                            <td>44</td><td class="p-low">0.65</td>
-                            <td class="c-high">100</td><td class="p-med">0.92</td>
-                            <td>29</td><td class="p-med">0.79</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>45</td><td class="p-low">0.68</td>
-                            <td class="c-high">100</td><td class="p-high">1.5</td>
-                            <td>48</td><td>0.44</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.6</b></td>
-                            <td>14</td><td>0.49</td>
-                            <td class="c-high">92</td><td class="p-med">0.81</td>
-                            <td>21</td><td class="p-low">0.71</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>10</td><td>0.33</td>
-                            <td class="c-high">92</td><td class="p-high">1.4</td>
-                            <td>38</td><td>0.28</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.7</b></td>
-                            <td>4</td><td>0.35</td>
-                            <td class="c-med">81</td><td class="p-med">0.80</td>
-                            <td>9</td><td class="p-low">0.61</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Miconic</td><td class="diff-col">E</td>
-                            <td class="c-high">97</td><td class="p-med">0.97</td>
-                            <td class="c-high">100</td><td class="p-high"><b>1.0</b></td>
-                            <td class="c-low">68</td><td class="p-low">0.56</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.0</b></td>
-                            <td>35</td><td class="p-low">0.55</td>
-                            <td class="c-high">97</td><td class="p-med">0.88</td>
-                            <td>42</td><td class="p-low">0.67</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>37</td><td class="p-low">0.56</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.98</b></td>
-                            <td class="c-low">65</td><td class="p-low">0.54</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med">0.97</td>
-                            <td>18</td><td>0.33</td>
-                            <td class="c-high">94</td><td class="p-med">0.86</td>
-                            <td>29</td><td>0.37</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>19</td><td>0.29</td>
-                            <td class="c-high">90</td><td class="p-med">0.92</td>
-                            <td class="c-low">60</td><td>0.49</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.95</b></td>
-                            <td>2</td><td>0.27</td>
-                            <td class="c-med">88</td><td class="p-med">0.83</td>
-                            <td>16</td><td>0.29</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Spanner</td><td class="diff-col">E</td>
-                            <td class="c-low">73</td><td class="p-high"><b>1.1</b></td>
-                            <td class="c-med">78</td><td class="p-med">0.86</td>
-                            <td class="c-low">22</td><td class="p-low">0.65</td>
-                            <td class="c-high"><b>94</b></td><td class="p-high"><b>1.1</b></td>
-                            <td>31</td><td class="p-low">0.65</td>
-                            <td class="c-med">87</td><td class="p-med">0.98</td>
-                            <td class="c-low">57</td><td class="p-med">0.82</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>42</td><td class="p-low">0.56</td>
-                            <td class="c-low">60</td><td class="p-low">0.69</td>
-                            <td>5</td><td class="p-low">0.55</td>
-                            <td class="c-high"><b>93</b></td><td class="p-med"><b>0.99</b></td>
-                            <td>11</td><td>0.27</td>
-                            <td class="c-med">81</td><td class="p-med">0.93</td>
-                            <td>42</td><td class="p-med">0.77</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>3</td><td>0.18</td>
-                            <td class="c-low">42</td><td class="p-low">0.61</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-med"><b>89</b></td><td class="p-med"><b>0.91</b></td>
-                            <td>0</td><td>-</td>
-                            <td class="c-low">62</td><td class="p-med">0.79</td>
-                            <td>12</td><td>0.45</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Gripper</td><td class="diff-col">E</td>
-                            <td class="c-high">100</td><td class="p-high">1.0</td>
-                            <td class="c-med">78</td><td class="p-med">0.98</td>
-                            <td class="c-low">26</td><td class="p-med">0.95</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.1</b></td>
-                            <td>31</td><td class="p-low">0.56</td>
-                            <td class="c-high">95</td><td class="p-high">1.0</td>
-                            <td class="c-low">55</td><td class="p-low">0.58</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td class="c-low">56</td><td class="p-med">0.85</td>
-                            <td class="c-low">54</td><td class="p-med">0.91</td>
-                            <td>12</td><td class="p-low">0.67</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.99</b></td>
-                            <td>23</td><td>0.40</td>
-                            <td class="c-high">92</td><td class="p-med">0.93</td>
-                            <td>43</td><td>0.41</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>21</td><td class="p-low">0.74</td>
-                            <td class="c-low">42</td><td class="p-med">0.88</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.96</b></td>
-                            <td>9</td><td>0.28</td>
-                            <td class="c-med">87</td><td class="p-med">0.86</td>
-                            <td>21</td><td>0.33</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Visitall</td><td class="diff-col">E</td>
-                            <td class="c-low">69</td><td class="p-high"><b>1.3</b></td>
-                            <td class="c-high">94</td><td class="p-med">0.96</td>
-                            <td class="c-high">92</td><td class="p-high">1.1</td>
-                            <td class="c-high">93</td><td class="p-high">1.1</td>
-                            <td class="c-low">72</td><td class="p-high">1.2</td>
-                            <td class="c-high">91</td><td class="p-high">1.1</td>
-                            <td class="c-low">52</td><td class="p-low">0.64</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>15</td><td class="p-med">0.76</td>
-                            <td class="c-med">86</td><td class="p-med">0.93</td>
-                            <td class="c-med">88</td><td class="p-high">1.0</td>
-                            <td class="c-high"><b>91</b></td><td class="p-high">1.0</td>
-                            <td class="c-low">64</td><td class="p-med">0.93</td>
-                            <td class="c-med">89</td><td class="p-high"><b>1.1</b></td>
-                            <td>46</td><td class="p-low">0.56</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>0</td>
-                            <td class="c-low">64</td><td class="p-med">0.81</td>
-                            <td class="c-med">78</td><td class="p-med">0.99</td>
-                            <td class="c-med"><b>88</b></td><td class="p-high">1.1</td>
-                            <td>44</td><td class="p-low">0.67</td>
-                            <td class="c-med">83</td><td class="p-high"><b>1.2</b></td>
-                            <td>39</td><td class="p-low">0.54</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Grid</td><td class="diff-col">E</td>
-                            <td class="c-low">74</td><td class="p-med">0.89</td>
-                            <td class="c-low">52</td><td class="p-med">0.81</td>
-                            <td class="c-low">20</td><td>0.38</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.91</b></td>
-                            <td>21</td><td class="p-low">0.56</td>
-                            <td class="c-med">79</td><td class="p-med">0.87</td>
-                            <td>17</td><td class="p-low">0.54</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>17</td><td class="p-low">0.61</td>
-                            <td class="c-low">45</td><td class="p-low">0.66</td>
-                            <td>3</td><td>0.28</td>
-                            <td class="c-high"><b>97</b></td><td class="p-med"><b>0.85</b></td>
-                            <td>8</td><td>0.46</td>
-                            <td class="c-low">71</td><td class="p-low">0.65</td>
-                            <td>12</td><td>0.28</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>0</td>
-                            <td class="c-low">21</td><td class="p-low">0.60</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-high"><b>92</b></td><td class="p-low"><b>0.74</b></td>
-                            <td>0</td><td>-</td>
-                            <td class="c-low">54</td><td class="p-low">0.53</td>
-                            <td>0</td><td>-</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Logistics</td><td class="diff-col">E</td>
-                            <td class="c-low">56</td><td class="p-low">0.61</td>
-                            <td class="c-low">39</td><td class="p-low">0.71</td>
-                            <td class="c-low">32</td><td class="p-med">0.81</td>
-                            <td class="c-high"><b>90</b></td><td>0.75</td>
-                            <td>12</td><td class="p-low">0.64</td>
-                            <td>31</td><td class="p-med"><b>0.86</b></td>
-                            <td>41</td><td class="p-low">0.65</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>7</td><td>0.21</td>
-                            <td>22</td><td class="p-low">0.55</td>
-                            <td>9</td><td>0.45</td>
-                            <td class="c-med"><b>76</b></td><td class="p-low"><b>0.65</b></td>
-                            <td>3</td><td>0.49</td>
-                            <td class="c-low">25</td><td class="p-low">0.54</td>
-                            <td>21</td><td>0.49</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>0</td>
-                            <td>4</td><td>0.39</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-low"><b>71</b></td><td class="p-low"><b>0.59</b></td>
-                            <td>0</td><td>-</td>
-                            <td>6</td><td>0.35</td>
-                            <td>0</td><td>-</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Rovers</td><td class="diff-col">E</td>
-                            <td class="c-low">64</td><td class="p-med">0.99</td>
-                            <td class="c-low">67</td><td class="p-med">0.96</td>
-                            <td class="c-low">21</td><td>0.35</td>
-                            <td class="c-med"><b>87</b></td><td class="p-high"><b>1.0</b></td>
-                            <td>22</td><td class="p-med">0.75</td>
-                            <td>44</td><td class="p-med">0.81</td>
-                            <td>33</td><td class="p-low">0.67</td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>9</td><td>0.32</td>
-                            <td class="c-low">56</td><td class="p-med">0.87</td>
-                            <td>5</td><td>0.19</td>
-                            <td class="c-med"><b>82</b></td><td class="p-med"><b>0.96</b></td>
-                            <td>6</td><td class="p-low">0.66</td>
-                            <td>37</td><td class="p-low">0.63</td>
-                            <td>9</td><td class="p-low">0.56</td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>0</td>
-                            <td>31</td><td class="p-low">0.64</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-med"><b>77</b></td><td class="p-med"><b>0.97</b></td>
-                            <td>0</td><td>-</td>
-                            <td>19</td><td class="p-low">0.57</td>
-                            <td>0</td><td>-</td>
-                        </tr>
-                        <tr><td colspan="15" style="background-color: #f0f0f0; height: 8px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col"><b>Combined</b></td><td class="diff-col"><b>E</b></td>
-                            <td class="c-med">79.1</td><td class="p-med">0.98</td>
-                            <td class="c-med">76</td><td class="p-med">0.98</td>
-                            <td>43.5</td><td class="p-low">0.67</td>
-                            <td class="c-high"><b>95.5</b></td><td class="p-high"><b>1.04</b></td>
-                            <td>33.5</td><td class="p-low">0.69</td>
-                            <td class="c-med">78</td><td class="p-med">0.93</td>
-                            <td>40.2</td><td class="p-low">0.67</td>
-                        </tr>
-                        <tr><td class="diff-col"><b>M</b></td>
-                            <td>28.5</td><td class="p-low">0.56</td>
-                            <td class="c-low">65.4</td><td class="p-med">0.88</td>
-                            <td>29.3</td><td class="p-low">0.51*</td>
-                            <td class="c-high"><b>92.2</b></td><td class="p-high"><b>1.01</b></td>
-                            <td>18.4</td><td class="p-low">0.50</td>
-                            <td class="c-low">72.7</td><td class="p-med">0.80</td>
-                            <td>27.8</td><td class="p-low">0.51</td>
-                        </tr>
-                        <tr><td class="diff-col"><b>H</b></td>
-                            <td>6.5</td><td>0.39*</td>
-                            <td class="c-low">48.5</td><td class="p-med">0.78</td>
-                            <td>22.1</td><td class="p-low">0.58*</td>
-                            <td class="c-med"><b>89.2</b></td><td class="p-med"><b>0.99</b></td>
-                            <td>7.4</td><td>0.39*</td>
-                            <td class="c-low">60</td><td class="p-low">0.73</td>
-                            <td>12.1</td><td>0.44*</td>
-                        </tr>
-                    </tbody>
-                </table>
-                </div>
-                </div>
-            </div>
-
-            <!-- LLM Comparison Table (Collapsed by Default) -->
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>View LLM Comparison Table (Table 4):</b> GABAR vs. OpenAI O3 and Gemini 2.5 Pro
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-            <div class="table-caption">
-                <b>Table 4 (from paper):</b> GABAR substantially outperforms SOTA LLMs, which fail at complex planning.
-            </div>
-            <div class="results-table-container">
-                <table class="results-table" style="min-width: 800px;">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" class="domain-col">Domain</th>
-                            <th rowspan="2" class="diff-col">Diff</th>
-                            <th colspan="2">OpenAI-O3</th>
-                            <th colspan="2">Gemini-2.5-Pro</th>
-                            <th colspan="2"><b>GABAR</b></th>
-                        </tr>
-                        <tr>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                            <th>C↑</th><th>P↑</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Blocks</td><td class="diff-col">E</td>
-                            <td class="c-low">73</td><td class="p-high">1.03</td>
-                            <td class="c-med">81</td><td class="p-high">1.1</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.5</b></td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>41</td><td class="p-med">0.95</td>
-                            <td>47</td><td class="p-med">0.86</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.6</b></td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>4</td><td class="p-low">0.61</td>
-                            <td>12</td><td class="p-med">0.81</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.7</b></td>
-                        </tr>
-                        <tr><td colspan="8" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Miconic</td><td class="diff-col">E</td>
-                            <td class="c-low">56</td><td class="p-med">0.81</td>
-                            <td class="c-med">79</td><td class="p-med">0.86</td>
-                            <td class="c-high"><b>100</b></td><td class="p-high"><b>1.0</b></td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>12</td><td class="p-low">0.69</td>
-                            <td>36</td><td class="p-low">0.58</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.97</b></td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>-</td>
-                            <td>12</td><td class="p-low">0.51</td>
-                            <td class="c-high"><b>100</b></td><td class="p-med"><b>0.95</b></td>
-                        </tr>
-                        <tr><td colspan="8" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col">Spanner</td><td class="diff-col">E</td>
-                            <td>38</td><td class="p-med">0.81</td>
-                            <td>42</td><td class="p-med">0.75</td>
-                            <td class="c-high"><b>94</b></td><td class="p-high"><b>1.1</b></td>
-                        </tr>
-                        <tr><td class="diff-col">M</td>
-                            <td>13</td><td class="p-med">0.77</td>
-                            <td>10</td><td class="p-low">0.64</td>
-                            <td class="c-high"><b>93</b></td><td class="p-med"><b>0.99</b></td>
-                        </tr>
-                        <tr><td class="diff-col">H</td>
-                            <td>0</td><td>-</td>
-                            <td>0</td><td>-</td>
-                            <td class="c-med"><b>89</b></td><td class="p-med"><b>0.91</b></td>
-                        </tr>
-                        <tr><td colspan="8" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
-                        <tr>
-                            <td rowspan="3" class="domain-col"><b>Combined</b></td><td class="diff-col"><b>E</b></td>
-                            <td>33.4</td><td class="p-med">0.85</td>
-                            <td>44.0</td><td class="p-med">0.8</td>
-                            <td class="c-high"><b>95.5</b></td><td class="p-high"><b>1.04</b></td>
-                        </tr>
-                        <tr><td class="diff-col"><b>M</b></td>
-                            <td>11.6</td><td class="p-med">0.77*</td>
-                            <td>17.1</td><td class="p-low">0.68*</td>
-                            <td class="c-high"><b>92.2</b></td><td class="p-high"><b>1.01</b></td>
-                        </tr>
-                        <tr><td class="diff-col"><b>H</b></td>
-                            <td>0.4</td><td class="p-low">0.61*</td>
-                            <td>1.5</td><td class="p-low">0.51*</td>
-                            <td class="c-med"><b>89.2</b></td><td class="p-med"><b>0.99</b></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-                </div>
-            </div>
-
-            <div class="dropdown-item">
-                <div class="dropdown-header">
-                    <span class="header-text">
-                        <b>Detailed Plan Length vs. Quality Analysis</b>
-                    </span>
-                    <span class="icon">
-                        <i class="fas fa-chevron-down"></i>
-                    </span>
-                </div>
-                <div class="dropdown-content">
-                    <p>The tables below show that GABAR not only solves *more* problems (Coverage, C) but also finds solutions that are high quality (Plan Quality Ratio, P) and efficient (Plan Length, PL). Baselines that solve fewer problems often appear to have low plan lengths simply because they are only solving the easiest instances.</p>
-                    <div class="table-caption">
-                        <b>Table 6 (from paper):</b> Detailed comparison including Plan Length (PL). GABAR's plan lengths are for a much higher coverage of problems.
+                        <b>In-distribution performance</b> on the ADE20K Fresh Test set (500 examples).
                     </div>
                     <div class="results-table-container">
                         <table class="results-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" class="domain-col">Domain</th>
-                                    <th rowspan="2" class="diff-col">Diff</th>
-                                    <th colspan="3">GPL</th>
-                                    <th colspan="3">ASNets</th>
-                                    <th colspan="3">GRAPL</th>
-                                    <th colspan="3"><b>GABAR</b></th>
-                                </tr>
-                                <tr>
-                                    <th>C↑</th><th>P↑</th><th>PL↓</th>
-                                    <th>C↑</th><th>P↑</th><th>PL↓</th>
-                                    <th>C↑</th><th>P↑</th><th>PL↓</th>
-                                    <th>C↑</th><th>P↑</th><th>PL↓</th>
+                                    <th class="model-col">Model</th>
+                                    <th class="setting-col">Setting</th>
+                                    <th>Fence %</th>
+                                    <th>Parse %</th>
+                                    <th>Execute %</th>
+                                    <th>Match %</th>
+                                    <th>Partial %</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Blocks</td><td class="diff-col">E</td>
-                                    <td class="c-high">100</td><td class="p-high">1.1</td><td>55</td>
-                                    <td class="c-high">100</td><td class="p-high">1.6</td><td>38</td>
-                                    <td class="c-low">64</td><td class="p-low">0.65</td><td>79</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-high">1.5</td><td>41</td>
+                                    <td class="model-col">Gemma 2 (2B)</td><td class="setting-col">base</td>
+                                    <td>71.2</td><td>6.2</td><td>6.2</td><td>0.0</td><td>0.4</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>45</td><td class="p-low">0.68</td><td>137</td>
-                                    <td class="c-high">100</td><td class="p-high">1.5</td><td>79</td>
-                                    <td>48</td><td>0.44</td><td>214</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-high">1.6</td><td><b>76</b></td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>10</td><td>0.33</td><td>423</td>
-                                    <td class="c-high">92</td><td class="p-high">1.4</td><td>156</td>
-                                    <td>38</td><td>0.28</td><td>585</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-high">1.7</td><td><b>125</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Miconic</td><td class="diff-col">E</td>
-                                    <td class="c-high">97</td><td class="p-med">0.97</td><td>167</td>
-                                    <td class="c-high">100</td><td class="p-high">1.0</td><td>162</td>
-                                    <td class="c-low">68</td><td class="p-low">0.56</td><td>252</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-high">1.0</td><td><b>160</b></td>
+                                    <td class="model-col">Gemma 2 (2B)</td><td class="setting-col">fine-tuned</td>
+                                    <td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>95.4</strong></td><td>2.8</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>37</td><td class="p-low">0.56</td><td>235</td>
-                                    <td class="c-high">100</td><td class="p-med">0.98</td><td><b>180</b></td>
-                                    <td class="c-low">65</td><td class="p-low">0.54</td><td>280</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-med">0.97</td><td>181</td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>19</td><td>0.29</td><td>448</td>
-                                    <td class="c-high">90</td><td class="p-med">0.92</td><td>209</td>
-                                    <td class="c-low">60</td><td>0.49</td><td>329</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-med">0.95</td><td><b>202</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
+                                <tr><td colspan="7" style="background-color: #fafafa; height: 3px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Spanner</td><td class="diff-col">E</td>
-                                    <td class="c-low">73</td><td class="p-high">1.1</td><td><b>27</b></td>
-                                    <td class="c-med">78</td><td class="p-med">0.86</td><td>36</td>
-                                    <td class="c-low">22</td><td class="p-low">0.65</td><td>35</td>
-                                    <td class="c-high"><b>94</b></td><td class="p-high">1.1</td><td>31</td>
+                                    <td class="model-col">Gemma 2 (9B)</td><td class="setting-col">base</td>
+                                    <td>100</td><td>3.2</td><td>3.2</td><td>0.2</td><td>0.4</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>42</td><td class="p-low">0.56</td><td>61</td>
-                                    <td class="c-low">60</td><td class="p-low">0.69</td><td>55</td>
-                                    <td>5</td><td class="p-low">0.55</td><td>50</td>
-                                    <td class="c-high"><b>93</b></td><td class="p-med">0.99</td><td><b>44</b></td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>3</td><td>0.18</td><td>208</td>
-                                    <td class="c-low">42</td><td class="p-low">0.61</td><td>79</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-med"><b>89</b></td><td class="p-med">0.91</td><td><b>67</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Gripper</td><td class="diff-col">E</td>
-                                    <td class="c-high">100</td><td class="p-high">1.0</td><td>82</td>
-                                    <td class="c-med">78</td><td class="p-med">0.98</td><td>76</td>
-                                    <td class="c-low">26</td><td class="p-med">0.95</td><td><b>61</b></td>
-                                    <td class="c-high"><b>100</b></td><td class="p-high">1.1</td><td>78</td>
+                                    <td class="model-col">Gemma 2 (9B)</td><td class="setting-col">fine-tuned</td>
+                                    <td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>95.2</strong></td><td>2.4</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td class="c-low">56</td><td class="p-med">0.85</td><td>128</td>
-                                    <td class="c-low">54</td><td class="p-med">0.91</td><td><b>118</b></td>
-                                    <td>12</td><td class="p-low">0.67</td><td>128</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-med">0.99</td><td>133</td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>21</td><td class="p-low">0.74</td><td><b>139</b></td>
-                                    <td class="c-low">42</td><td class="p-med">0.88</td><td>131</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-med">0.96</td><td>156</td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
+                                <tr><td colspan="7" style="background-color: #fafafa; height: 3px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Visitall</td><td class="diff-col">E</td>
-                                    <td class="c-low">69</td><td class="p-high">1.3</td><td><b>79</b></td>
-                                    <td class="c-high">94</td><td class="p-med">0.96</td><td>121</td>
-                                    <td class="c-high">92</td><td class="p-high">1.1</td><td>106</td>
-                                    <td class="c-high"><b>93</b></td><td class="p-high">1.1</td><td>103</td>
+                                    <td class="model-col">Gemma 2 (27B)</td><td class="setting-col">base</td>
+                                    <td>100.0</td><td>0.6</td><td>0.6</td><td>0.0</td><td>0.2</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>15</td><td class="p-med">0.76</td><td>188</td>
-                                    <td class="c-med">86</td><td class="p-med">0.93</td><td>194</td>
-                                    <td class="c-med">88</td><td class="p-high">1.0</td><td>181</td>
-                                    <td class="c-high"><b>91</b></td><td class="p-high">1.0</td><td><b>179</b></td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-low">64</td><td class="p-med">0.81</td><td>333</td>
-                                    <td class="c-med">78</td><td class="p-med">0.99</td><td>272</td>
-                                    <td class="c-med"><b>88</b></td><td class="p-high">1.1</td><td><b>243</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Grid</td><td class="diff-col">E</td>
-                                    <td class="c-low">74</td><td class="p-med">0.89</td><td><b>41</b></td>
-                                    <td class="c-low">52</td><td class="p-med">0.81</td><td>47</td>
-                                    <td class="c-low">20</td><td>0.38</td><td>77</td>
-                                    <td class="c-high"><b>100</b></td><td class="p-med">0.91</td><td>45</td>
+                                    <td class="model-col">Gemma 2 (27B)</td><td class="setting-col">fine-tuned</td>
+                                    <td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>95.2</strong></td><td>3.0</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>17</td><td class="p-low">0.61</td><td>66</td>
-                                    <td class="c-low">45</td><td class="p-low">0.66</td><td>73</td>
-                                    <td>3</td><td>0.28</td><td>143</td>
-                                    <td class="c-high"><b>97</b></td><td class="p-med">0.85</td><td><b>63</b></td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-low">21</td><td class="p-low">0.60</td><td>101</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-high"><b>92</b></td><td class="p-low">0.74</td><td><b>98</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
+                                <tr><td colspan="7" style="background-color: #fafafa; height: 3px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Logistics</td><td class="diff-col">E</td>
-                                    <td class="c-low">56</td><td class="p-low">0.61</td><td>117</td>
-                                    <td class="c-low">39</td><td class="p-low">0.71</td><td>101</td>
-                                    <td class="c-low">32</td><td class="p-med">0.81</td><td><b>88</b></td>
-                                    <td class="c-high"><b>90</b></td><td class="p-med">0.75</td><td>127</td>
+                                    <td class="model-col">Qwen 2.5 (0.5B)</td><td class="setting-col">fine-tuned</td>
+                                    <td>93.8</td><td>4.6</td><td>4.6</td><td>4.4</td><td>0.0</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>7</td><td>0.21</td><td>305</td>
-                                    <td>22</td><td class="p-low">0.55</td><td><b>138</b></td>
-                                    <td>9</td><td>0.45</td><td>169</td>
-                                    <td class="c-med"><b>76</b></td><td class="p-low">0.65</td><td>159</td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td>4</td><td>0.39</td><td><b>217</b></td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-low"><b>71</b></td><td class="p-low">0.59</td><td>232</td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #fafafa; height: 5px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col">Rovers</td><td class="diff-col">E</td>
-                                    <td class="c-low">64</td><td class="p-med">0.99</td><td><b>17</b></td>
-                                    <td class="c-low">67</td><td class="p-med">0.96</td><td>19</td>
-                                    <td class="c-low">21</td><td>0.35</td><td>44</td>
-                                    <td class="c-med"><b>87</b></td><td class="p-high">1.0</td><td>21</td>
+                                    <td class="model-col">Qwen 2.5 (7B)</td><td class="setting-col">fine-tuned</td>
+                                    <td class="c-high"><strong>100.0</strong></td><td class="c-med">97.6</td><td class="c-med">97.6</td><td class="c-high"><strong>93.0</strong></td><td>3.0</td>
                                 </tr>
-                                <tr><td class="diff-col">M</td>
-                                    <td>9</td><td>0.32</td><td>78</td>
-                                    <td class="c-low">56</td><td class="p-med">0.87</td><td>36</td>
-                                    <td>5</td><td>0.19</td><td>125</td>
-                                    <td class="c-med"><b>82</b></td><td class="p-med"><b>0.96</b></td><td><b>33</b></td>
-                                </tr>
-                                <tr><td class="diff-col">H</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td>31</td><td class="p-low">0.64</td><td>55</td>
-                                    <td>-</td><td>-</td><td>-</td>
-                                    <td class="c-med"><b>77</b></td><td class="p-med">0.97</td><td><b>45</b></td>
-                                </tr>
-                                <tr><td colspan="14" style="background-color: #f0f0f0; height: 8px; border: 0;"></td></tr>
                                 <tr>
-                                    <td rowspan="3" class="domain-col"><b>Combined</b></td><td class="diff-col"><b>E</b></td>
-                                    <td class="c-med">79.1</td><td class="p-med">0.98</td><td><b>69</b></td>
-                                    <td class="c-med">76.0</td><td class="p-med">0.98</td><td>73</td>
-                                    <td>43.5</td><td class="p-low">0.67</td><td>91</td>
-                                    <td class="c-high"><b>95.5</b></td><td class="p-high"><b>1.04</b></td><td>76</td>
+                                    <td class="model-col">Qwen 2.5 (14B)</td><td class="setting-col">fine-tuned</td>
+                                    <td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>100.0</strong></td><td class="c-high"><strong>95.4</strong></td><td>2.6</td>
                                 </tr>
-                                <tr><td class="diff-col"><b>M</b></td>
-                                    <td>28.5</td><td class="p-low">0.56</td><td>148</td>
-                                    <td class="c-low">65.4</td><td class="p-med">0.88</td><td><b>111</b></td>
-                                    <td>29.3</td><td class="p-low">0.51</td><td>172</td>
-                                    <td class="c-high"><b>92.2</b></td><td class="p-high"><b>1.01</b></td><td>108</td>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-caption" style="margin-top: 25px;">
+                        <b>Cross-model comparison</b> across all evaluation axes.
+                    </div>
+                    <div class="results-table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th class="model-col">Model</th>
+                                    <th>Params</th>
+                                    <th>Fresh %</th>
+                                    <th>OOD %</th>
+                                    <th>Pascal %</th>
+                                    <th>Robust %</th>
                                 </tr>
-                                <tr><td class="diff-col"><b>H</b></td>
-                                    <td>6.5</td><td>0.39*</td><td>265</td>
-                                    <td>48.5</td><td class="p-med">0.78</td><td>158</td>
-                                    <td>22.1</td><td class="p-low">0.58*</td><td>276</td>
-                                    <td class="c-med"><b>89.2</b></td><td class="p-med"><b>0.99</b></td><td><b>147</b></td>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="model-col">Gemma 2</td><td>2B</td>
+                                    <td class="c-high"><strong>95.4</strong></td><td>30.3</td><td class="c-high"><strong>90.0</strong></td><td class="c-med">78.9</td>
+                                </tr>
+                                <tr>
+                                    <td class="model-col">Gemma 2</td><td>9B</td>
+                                    <td class="c-high"><strong>95.2</strong></td><td>35.0</td><td class="c-med">89.6</td><td class="c-med">82.8</td>
+                                </tr>
+                                <tr>
+                                    <td class="model-col">Gemma 2</td><td>27B</td>
+                                    <td class="c-high"><strong>95.2</strong></td><td>34.3</td><td class="c-high"><strong>90.6</strong></td><td class="c-med">85.9</td>
+                                </tr>
+                                <tr><td colspan="6" style="background-color: #fafafa; height: 3px; border: 0;"></td></tr>
+                                <tr>
+                                    <td class="model-col">Qwen 2.5</td><td>0.5B</td>
+                                    <td>4.4</td><td>4.7</td><td>4.4</td><td class="p-low">54.4</td>
+                                </tr>
+                                <tr>
+                                    <td class="model-col">Qwen 2.5</td><td>7B</td>
+                                    <td class="c-high"><strong>93.0</strong></td><td class="p-low"><strong>40.0</strong></td><td class="c-med">87.2</td><td class="c-med">82.2</td>
+                                </tr>
+                                <tr>
+                                    <td class="model-col">Qwen 2.5</td><td>14B</td>
+                                    <td class="c-high"><strong>95.4</strong></td><td class="p-low"><strong>40.0</strong></td><td class="c-high"><strong>90.0</strong></td><td class="c-med">82.5</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1524,205 +1010,210 @@
             <hr>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- SECTION 6: Case Studies -->
+        <!-- ============================================================ -->
         <div class="section-container">
-            <h2 class="title is-2">Key Findings from Ablations
+            <h2 class="title is-2">Case Studies
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
 
-            <!-- ABLATION STUDY CHART -->
-            <div class="results-chart-container">
-                <div class="chart-title">
-                    <h3>Ablation Study: Coverage on Hard Problems</h3>
-                    <p>Each bar shows coverage when one component is removed from GABAR</p>
-                </div>
-
-                <div class="chart">
-                    <div class="chart-row">
-                        <div class="chart-label">Full GABAR</div>
-                        <div class="chart-bar-container"><div class="chart-bar" style="width: 89.2%; background: #00A3A1;">89.2%</div></div>
-                    </div>
-                    <div class="chart-divider" style="margin-left:0"></div>
-                    <div class="chart-row">
-                        <div class="chart-label" style="color:#c0392b;">- Cond. Decoder</div>
-                        <div class="chart-bar-container"><div class="chart-bar" style="width: 60%; background: #e67e22;">60.0%</div></div>
-                    </div>
-                    <div class="chart-row">
-                        <div class="chart-label" style="color:#c0392b;">- Global Node</div>
-                        <div class="chart-bar-container"><div class="chart-bar" style="width: 42.5%; background: #e74c3c;">42.5%</div></div>
-                    </div>
-                    <div class="chart-row">
-                        <div class="chart-label" style="color:#c0392b;">- Ranking Obj.</div>
-                        <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 12.1%; background: #c0392b;">12.1%</div></div>
-                    </div>
-                    <div class="chart-row">
-                        <div class="chart-label" style="color:#c0392b;">- Action Nodes</div>
-                        <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 7.4%; background: #922b21;">7.4%</div></div>
-                    </div>
-                </div>
-                <p class="chart-caption">Removing action nodes or the ranking objective causes near-total failure. Each component is necessary for the system to work at scale.</p>
-            </div>
-
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Action nodes are critical:</b> Removing them (GABAR-ACT) drops coverage from 89.2% to 7.4% on hard problems.
+                        <b>End-to-end multimodal response:</b> Co-occurrence query produces NL summary, statistics, and visual grounding.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Our GABAR-ACT ablation removed the explicit action nodes from the graph. This caused a catastrophic performance drop, with coverage on hard problems falling from 89.2% to just 7.4%. This confirms that explicitly modeling action-object relationships is essential.</p>
+                    <div class="query-example">
+                        <div class="query-q">"In living_room, what objects appear with sculpture?"</div>
+                        <div class="query-a">"Sculptures in living rooms most often appear with walls (80% of the time), followed by sofas (60%). Other common objects found alongside sculptures include cushions, coffee tables, and windowpanes."</div>
+                    </div>
+                    <p>The system generates a complex co-occurrence SQL query with correlated subquery, executes it, and returns a multi-modal response: fluent NL summary, quantitative statistics (wall 80%, sofa 60%, cushion 53%...), and top-3 evidence images showing original images, important objects, and masked highlights.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Conditional decoding matters:</b> Independent parameter selection (GABAR-CD) drops coverage to 60% on hard problems.
+                        <b>Character-identical SQL on held-out queries:</b> Novel entity combinations produce exact SQL matches.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>The GABAR-CD ablation selected all action parameters independently instead of sequentially. This failed to capture dependencies (e.g., in Logistics), and coverage on hard problems dropped from 89.2% to 60.0%.</p>
+                    <div class="query-example">
+                        <div class="query-q">"What % of corridor images with probability at least 0.7 contain stool?"</div>
+                        <div class="query-a">"About 0.14% of corridor images with a probability of at least 0.7 contain a stool."</div>
+                    </div>
+                    <p>The predicted SQL is <em>character-for-character identical</em> to the gold standard. This is not an isolated case&mdash;it holds for existence checks, probability-filtered queries, and many more. The model has internalized SQL's compositional structure as reusable rules rather than memorized surface strings: the specific entity names (<code>stool</code>, <code>corridor</code>, <code>0.7</code>) never co-occur in training.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Ranking beats value learning:</b> Using a value-learning objective (GABAR-RANK) drops coverage to 12.1% on hard problems.
+                        <b>Cross-dataset transfer with 4-way self-joins:</b> Pascal VOC body-part vocabulary produces perfect SQL on first try.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>The GABAR-RANK ablation used our graph but swapped the ranking objective for a traditional value-learning objective. Performance collapsed to just 12.1% on hard problems, proving that learning to rank is a more robust and generalizable strategy.</p>
+                    <div class="query-example">
+                        <div class="query-q">"Rarest 4-object pairs in aeroplane?"</div>
+                        <div class="query-a">"The rarest 4-object pairs in aeroplane images are 'lear', 'torso', 'body', and either 'rhand', 'rlarm', or 'ruarm', each appearing only 2 times."</div>
+                    </div>
+                    <p>The model, trained on ADE20K with objects like <code>wall</code> and <code>bed</code>, produces a character-identical 4-way self-join query over Pascal VOC body-part vocabulary (<code>lear</code>, <code>torso</code>, <code>rhand</code>) it has never seen. The critical ordering constraint <code>io1.object_id < io2.object_id < io3.object_id < io4.object_id</code> that prevents duplicate combinations is reproduced exactly.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Global node enables scaling:</b> Removing the global node (GABAR-G) halves performance on hard problems (42.5% coverage).
+                        <b>Graceful failure modes:</b> Informal language causes template mis-routing, not crashes. Double negation is unsupported but handled safely.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>In our GABAR-G ablation (results in paper appendix), removing the global node (which aggregates graph-wide information) caused coverage on hard problems to drop from 89.2% to 42.5%. The global node is critical for rapid information propagation in large graphs.</p>
+                    <div class="query-example">
+                        <div class="query-q">"yo how many street pics got water in them"</div>
+                        <div class="query-a">"There are 13 street pictures that contain water." (Returns count instead of intended percentage&mdash;correct entity extraction, wrong template selection)</div>
+                    </div>
+                    <div class="query-example">
+                        <div class="query-q">"What percentage of conference_room images are not without screen?"</div>
+                        <div class="query-a">"97.38% of conference room images do not show a screen." (Treats double negation as single negation&mdash;returns 97.38% instead of 1.20%)</div>
+                    </div>
+                    <p>Failure modes are well-characterized: <em>parameter-level errors</em> (incorrect thresholds in ambiguous cases), <em>template mis-routing under register shift</em> (informal language maps to wrong template), and <em>pragmatic reasoning failures</em> (double negation). All are addressable through the same lightweight pipeline: adding templates or phrasing styles requires only updating the synthetic data generator.</p>
                 </div>
             </div>
             <hr>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- SECTION 7: Technical Details -->
+        <!-- ============================================================ -->
         <div class="section-container">
             <h2 class="title is-2">Technical Details
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
 
-            <!-- Training Process Diagram -->
-            <img src="./resources/training_process.png" alt="GABAR Training Process" class="visible-image" style="width: 85%; margin: 20px auto;">
-
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Training setup:</b> Trained on 3-6k examples from small problems, labeled by an optimal planner.
+                        <b>Training setup:</b> 50,000 synthetic examples, QLoRA fine-tuning, fence-based loss masking on SQL tokens only.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>We generate data by solving small problems (e.g., 6-9 blocks, 5-15 balls) with an optimal planner. The first action of the optimal plan is used as the training label. Training takes 1-2 hours per domain on an RTX 3080.</p>
+                    <p>Training examples are generated synthetically by sampling from 24 query templates. Each template produces a (natural-language question, SQL query) pair by randomly selecting objects and scene classes from the ADE20K vocabulary. We generate 50,000 training pairs and 2,000 validation pairs. During fine-tuning, the <code>SqlFenceCollator</code> masks the training loss to only tokens between <code>SQL_START</code> and <code>SQL_END</code>, focusing learning exclusively on SQL generation.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Graph construction:</b> Nodes (Object, Predicate, Action, Global) and Edges (Predicate-Object, Action-Object) encode state and action semantics.
+                        <b>Architecture:</b> Gemma 2-9B with LoRA rank 16, alpha 32, targeting all attention and MLP projections.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Node features are one-hot encodings for type (object, predicate, action) and specific schema/predicate. Edge features encode type (predicate-object, action-object) and argument/parameter position.</p>
-                    <img src="./resources/gabar_graph_example.png" alt="GABAR Graph Construction Example" class="visible-image" style="width: 100%; background-color: white;">
+                    <p>We fine-tune Gemma 2-9B using Low-Rank Adaptation (LoRA) with 4-bit quantization (QLoRA). Configuration: LoRA rank 16, alpha 32, dropout 0.05. Targets: all attention projections (q, k, v, o) and MLP projections (gate, up, down). The same configuration is applied across all model sizes (2B, 9B, 27B for Gemma; 0.5B, 7B, 14B for Qwen).</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Architecture specifics:</b> Hidden dim 64, 9 GNN rounds, Adam optimizer, and a beam search width of 2.
+                        <b>Explanation database:</b> Built from mDNF explanations of a VGG19 model on ADE20K (150 objects, 35 scene classes).
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>We use a hidden dimensionality of 64, 9 rounds of GNN message passing, and a batch size of 16. The decoder uses a beam width of 2. We use the Adam optimizer with a learning rate of 0.0005.</p>
+                    <p>The reference database is built from monotonic Disjunctive Normal Form (mDNF) explanations of a VGG19 classifier computed over the ADE20K dataset. Each class's explanation is a disjunction of conjunctions, where each conjunction is a Minimal Sufficient Explanation (MSX)&mdash;a minimal set of objects whose presence is sufficient for classification. The system can accommodate any local explanation algorithm that generates explanations in symbolic form.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Datasets:</b> 3,000-6,000 training examples per domain, generated with standard PDDL generators.
+                        <b>Evaluation metrics:</b> Fence detection, SQL parse rate, execution rate, result match (relaxed), and partial match (Jaccard).
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>We generate between 3,348 (Blocks) and 6,880 (Grid) training examples (state-action pairs) per domain. All problems are generated using standard PDDL generators.</p>
+                    <p>We evaluate generated SQL by executing it against the ground-truth database. <strong>Fence Detection</strong>: correct SQL_START/SQL_END delimiters. <strong>SQL Parse Rate</strong>: syntactically valid SQL. <strong>Execution Rate</strong>: runs without error. <strong>Result Match</strong>: relaxed matching (tolerates row-order, LIMIT differences, extra columns, and 1% numeric tolerance). <strong>Partial Match</strong>: Jaccard similarity > 0.5 on first-column values. Additional robustness metrics include robustness score, consistency rate, and sanity pass rate.</p>
                 </div>
             </div>
             <hr>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- SECTION 8: Why This Matters -->
+        <!-- ============================================================ -->
         <div class="section-container">
             <h2 class="title is-2">Why This Matters
                 <a class="section-toggle" data-action="expand">[Expand All]</a>
             </h2>
-            
+
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Enables practical planning at scale:</b> Solves large, real-world sized problems without expensive search.
+                        <b>From browsing to questioning:</b> Shifts the cognitive burden from scanning complex formulas to asking targeted questions.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>GABAR enables solving large, real-world-sized planning problems by executing a learned policy directly, bypassing the expensive search required by traditional planners.</p>
+                    <p>Instead of manually scanning complex DNF formulas to find relevant patterns, users can ask targeted contrastive questions&mdash;"Does bed always co-occur with wall?" or "Which objects distinguish kitchen from dining room?"&mdash;aligning with the natural human tendency to seek explanations through selective hypothesis testing.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>A shift in learning paradigm:</b> Shows local action ranking is more tractable and scalable than global value estimation.
+                        <b>Iterative sensemaking through composition:</b> Users start with broad queries and progressively drill down into specifics.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Our results show that learning a simple, local action-ranking policy is a more tractable and scalable approach than the dominant paradigm of learning complex, global value functions.</p>
+                    <p>The template taxonomy supports progressive exploration: start with broad frequency queries ("What objects appear in bedrooms?"), then drill into co-occurrences ("Which objects appear with bed?"), cross-class distinctions ("What distinguishes bedroom from living room?"), and counterfactuals ("What if bed were absent?"). This facilitates the step-by-step reasoning process essential for effective model understanding.</p>
                 </div>
             </div>
             <div class="dropdown-item">
                 <div class="dropdown-header">
                     <span class="header-text">
-                        <b>Structural learning works:</b> Demonstrates that GNNs + PDDL structure achieve sample efficiency that pure RL cannot.
+                        <b>Bridges expertise gaps:</b> Safety engineers and medical practitioners can query model behavior without SQL or programming knowledge.
                     </span>
                     <span class="icon">
                         <i class="fas fa-chevron-down"></i>
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>This work demonstrates that combining the explicit relational structure of PDDL with the right GNN architecture can achieve sample efficiency and generalization that pure, data-hungry RL methods often cannot.</p>
+                    <p>By eliminating the need for SQL or programming expertise, GLARE makes rigorous global explanations accessible to domain experts who are not ML practitioners. A safety engineer can ask "Does the model ever rely on background features for classification?" and receive a precise, data-grounded answer.</p>
+                </div>
+            </div>
+            <div class="dropdown-item">
+                <div class="dropdown-header">
+                    <span class="header-text">
+                        <b>Scalable to new domains:</b> Deploy on any new dataset by providing entity names&mdash;no retraining, no manual annotation.
+                    </span>
+                    <span class="icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="dropdown-content">
+                    <p>The synthetic training pipeline and fence-based loss masking ensure the model learns SQL structure, not dataset-specific vocabulary. Deploying on a new domain requires only providing the entity name list and a database conforming to the same schema. The 90.6% zero-shot transfer to Pascal VOC demonstrates this is practical, not theoretical.</p>
                 </div>
             </div>
         </div>
@@ -1737,45 +1228,37 @@
   <div class="container content">
     <h2 class="title">BibTeX</h2>
     <pre><code>
-      @inproceedings{mangannavargraph,
-        title={Graph Neural Network Based Action Ranking for Planning},
-        author={Mangannavar, Rajesh Devaraddi and Lee, Stefan and Fern, Alan and Tadepalli, Prasad},
-        booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems}
+      @inproceedings{glare2026,
+        title={GLARE: A Natural Language Interface for Querying Global Explanations},
+        author={Anonymous Authors},
+        booktitle={Under Review},
+        year={2026}
       }
 </code></pre>
   </div>
 </section>
 
 
-<script src="./static/js/isInViewport.min.js"></script>
 <script src="./static/js/bulma-carousel.min.js"></script>
-<script src="./static_js/bulma-slider.min.js"></script>
-<script src="./static_js/index.js"></script>
+<script src="./static/js/bulma-slider.min.js"></script>
+<script src="./static/js/index.js"></script>
 
 <script>
 $(document).ready(function() {
-    
-    // --- Individual Dropdown Toggle (NEW) ---
+
+    // Individual Dropdown Toggle
     $('.dropdown-header').click(function() {
-        // Toggle the 'active' class on the header
-        $(this).toggleClass('active'); 
-        
-        // Find the content and slide it
+        $(this).toggleClass('active');
         var content = $(this).next('.dropdown-content');
-        content.slideToggle(200); 
-        
-        // That's it! CSS handles the icon rotation.
+        content.slideToggle(200);
     });
 
-    // --- Section Toggle (FIXED) ---
+    // Section Toggle
     $('.section-toggle').click(function(e) {
-        e.preventDefault(); // Stop link behavior
-        e.stopPropagation(); // Stop from triggering individual dropdown click
-        
-        // Find the parent .section-container for this specific toggle
-        var section = $(this).closest('.section-container'); 
-        
-        // Find elements *only* within that section
+        e.preventDefault();
+        e.stopPropagation();
+
+        var section = $(this).closest('.section-container');
         var headers = section.find('.dropdown-header');
         var contents = section.find('.dropdown-content');
         var action = $(this).data('action');
@@ -1783,34 +1266,30 @@ $(document).ready(function() {
         if (action === 'expand') {
             headers.addClass('active');
             contents.slideDown(200);
-            // headers.find('.icon').text('▼'); // No longer needed, CSS handles icons
             $(this).text('[Collapse All]');
             $(this).data('action', 'collapse');
         } else {
             headers.removeClass('active');
             contents.slideUp(200);
-            // headers.find('.icon').text('▶'); // No longer needed, CSS handles icons
             $(this).text('[Expand All]');
             $(this).data('action', 'expand');
         }
     });
 
-    // --- Global Toggle ---
+    // Global Toggle
     $('#global-toggle').click(function() {
         var globalAction = $(this).data('action');
         var allSectionToggles = $('.section-toggle');
 
         allSectionToggles.each(function() {
             var currentSectionAction = $(this).data('action');
-            // Click the section toggle only if it's not already in the desired state
             if (globalAction === 'expand' && currentSectionAction === 'expand') {
-                $(this).click(); // Click to expand
+                $(this).click();
             } else if (globalAction === 'collapse' && currentSectionAction === 'collapse') {
-                $(this).click(); // Click to collapse
+                $(this).click();
             }
         });
 
-        // Update the global button text and state
         if (globalAction === 'expand') {
             $(this).text('Collapse All Sections');
             $(this).data('action', 'collapse');
