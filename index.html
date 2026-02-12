@@ -370,6 +370,7 @@
               <a href="https://rajeshdm.github.io" target="_blank">Rajesh Mangannavar</a>,
               <a href="https://bhavanvasu.com" target="_blank">Bhavan Vasu</a>
               <br><br>
+              <img src="resources/OSU_horizontal_2C_O_over_B.png" alt="Oregon State University" style="height: 50px; vertical-align: middle; margin-right: 8px;" />
               Oregon State University
             </span>
           </div>
@@ -1293,153 +1294,8 @@
                     <p>The system generates a complex co-occurrence SQL query with correlated subquery, executes it, and returns a multi-modal response: fluent NL summary, quantitative statistics (wall 80%, sofa 60%, cushion 53%...), and top-3 evidence images showing original images, important objects, and masked highlights.</p>
 
                     <!-- Case Study Figure: End-to-end multimodal response -->
-                    <div class="pipeline-container" style="margin-top:20px;">
-                        <svg viewBox="0 0 860 580" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <marker id="cs-arrow" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-                                    <polygon points="0 0, 7 2.5, 0 5" fill="#444"/>
-                                </marker>
-                                <marker id="cs-arrow-green" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
-                                    <polygon points="0 0, 7 2.5, 0 5" fill="#27ae60"/>
-                                </marker>
-                            </defs>
-
-                            <text x="430" y="22" text-anchor="middle" font-size="13" fill="#333" font-weight="bold">End-to-End Case Study: Co-occurrence Query</text>
-
-                            <!-- Step 1: User Query -->
-                            <rect x="30" y="40" width="800" height="42" rx="20" ry="20" fill="#eef2ff" stroke="#3273dc" stroke-width="1.5"/>
-                            <text x="50" y="56" font-size="10" fill="#3273dc" font-weight="bold">USER QUERY</text>
-                            <text x="50" y="72" font-size="11" fill="#333" font-style="italic">"In living_room, what objects appear with sculpture?"</text>
-
-                            <!-- Arrow down -->
-                            <line x1="430" y1="82" x2="430" y2="100" stroke="#444" stroke-width="1.2" marker-end="url(#cs-arrow)"/>
-
-                            <!-- Step 2: Generated SQL -->
-                            <rect x="30" y="105" width="800" height="58" rx="5" ry="5" fill="#f5f0ff" stroke="#7c3aed" stroke-width="1.2"/>
-                            <text x="50" y="122" font-size="10" fill="#7c3aed" font-weight="bold">GENERATED SQL</text>
-                            <text x="50" y="140" font-size="9" fill="#555" font-family="monospace">SELECT io2.object_name, COUNT(DISTINCT i.image_id) AS co_count,</text>
-                            <text x="50" y="153" font-size="9" fill="#555" font-family="monospace">  ROUND(COUNT(DISTINCT i.image_id)*100.0 / (SELECT COUNT(DISTINCT i2.image_id) FROM images i2 JOIN image_objects io3 ON ... ), 2) AS pct</text>
-
-                            <!-- Arrow down -->
-                            <line x1="430" y1="163" x2="430" y2="181" stroke="#444" stroke-width="1.2" marker-end="url(#cs-arrow)"/>
-
-                            <!-- Step 3: Query Results -->
-                            <rect x="30" y="186" width="380" height="150" rx="5" ry="5" fill="#f8faf8" stroke="#27ae60" stroke-width="1.2"/>
-                            <text x="50" y="206" font-size="10" fill="#27ae60" font-weight="bold">QUERY RESULTS</text>
-
-                            <!-- Results table header -->
-                            <rect x="50" y="215" width="120" height="18" rx="2" ry="2" fill="#e8f5e9"/>
-                            <text x="110" y="228" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">Object</text>
-                            <rect x="170" y="215" width="60" height="18" rx="2" ry="2" fill="#e8f5e9"/>
-                            <text x="200" y="228" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">Count</text>
-                            <rect x="230" y="215" width="60" height="18" rx="2" ry="2" fill="#e8f5e9"/>
-                            <text x="260" y="228" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">Pct (%)</text>
-
-                            <!-- Table rows -->
-                            <text x="110" y="248" text-anchor="middle" font-size="9" fill="#333">wall</text>
-                            <text x="200" y="248" text-anchor="middle" font-size="9" fill="#333">12</text>
-                            <text x="260" y="248" text-anchor="middle" font-size="9" fill="#1e8449" font-weight="bold">80.0</text>
-
-                            <text x="110" y="264" text-anchor="middle" font-size="9" fill="#333">sofa</text>
-                            <text x="200" y="264" text-anchor="middle" font-size="9" fill="#333">9</text>
-                            <text x="260" y="264" text-anchor="middle" font-size="9" fill="#1e8449" font-weight="bold">60.0</text>
-
-                            <text x="110" y="280" text-anchor="middle" font-size="9" fill="#333">cushion</text>
-                            <text x="200" y="280" text-anchor="middle" font-size="9" fill="#333">8</text>
-                            <text x="260" y="280" text-anchor="middle" font-size="9" fill="#555">53.3</text>
-
-                            <text x="110" y="296" text-anchor="middle" font-size="9" fill="#333">coffee_table</text>
-                            <text x="200" y="296" text-anchor="middle" font-size="9" fill="#333">7</text>
-                            <text x="260" y="296" text-anchor="middle" font-size="9" fill="#555">46.7</text>
-
-                            <text x="110" y="312" text-anchor="middle" font-size="9" fill="#333">windowpane</text>
-                            <text x="200" y="312" text-anchor="middle" font-size="9" fill="#333">6</text>
-                            <text x="260" y="312" text-anchor="middle" font-size="9" fill="#555">40.0</text>
-
-                            <text x="110" y="328" text-anchor="middle" font-size="8" fill="#999">...</text>
-
-                            <!-- NL Answer -->
-                            <rect x="440" y="186" width="390" height="150" rx="5" ry="5" fill="#eaf7ea" stroke="#27ae60" stroke-width="1.5"/>
-                            <text x="460" y="206" font-size="10" fill="#1e8449" font-weight="bold">NATURAL LANGUAGE ANSWER</text>
-                            <text x="460" y="228" font-size="10" fill="#333">"Sculptures in living rooms most often</text>
-                            <text x="460" y="244" font-size="10" fill="#333">appear with walls (80% of the time),</text>
-                            <text x="460" y="260" font-size="10" fill="#333">followed by sofas (60%). Other common</text>
-                            <text x="460" y="276" font-size="10" fill="#333">objects found alongside sculptures include</text>
-                            <text x="460" y="292" font-size="10" fill="#333">cushions (53%), coffee tables (47%),</text>
-                            <text x="460" y="308" font-size="10" fill="#333">and windowpanes (40%)."</text>
-
-                            <!-- Arrow down -->
-                            <line x1="430" y1="340" x2="430" y2="360" stroke="#27ae60" stroke-width="1.5" marker-end="url(#cs-arrow-green)"/>
-                            <text x="430" y="355" text-anchor="middle" font-size="9" fill="#27ae60" font-weight="bold">+ visual evidence</text>
-
-                            <!-- Evidence Images Section -->
-                            <rect x="30" y="370" width="800" height="195" rx="8" ry="8" fill="#fafafa" stroke="#ddd" stroke-width="1"/>
-                            <text x="430" y="392" text-anchor="middle" font-size="10" fill="#555" font-weight="bold">EVIDENCE IMAGES (Top-3 Supporting Examples)</text>
-
-                            <!-- Image 1 -->
-                            <rect x="55" y="405" width="100" height="70" rx="4" ry="4" fill="#e0e0e0" stroke="#bbb" stroke-width="1"/>
-                            <rect x="62" y="412" width="30" height="20" rx="2" ry="2" fill="#d4a574" stroke="none"/>
-                            <rect x="58" y="435" width="90" height="30" rx="2" ry="2" fill="#c9b896" stroke="none"/>
-                            <rect x="100" y="410" width="45" height="55" rx="2" ry="2" fill="#8e9eab" stroke="none" fill-opacity="0.5"/>
-                            <text x="105" y="485" text-anchor="middle" font-size="8" fill="#555">Original</text>
-
-                            <rect x="170" y="405" width="100" height="70" rx="4" ry="4" fill="#f5f5f5" stroke="#bbb" stroke-width="1"/>
-                            <rect x="177" y="412" width="30" height="20" rx="2" ry="2" fill="#d4a574" stroke="#e74c3c" stroke-width="2"/>
-                            <rect x="215" y="410" width="45" height="55" rx="2" ry="2" fill="#8e9eab" stroke="#3498db" stroke-width="2" fill-opacity="0.5"/>
-                            <rect x="173" y="435" width="90" height="30" rx="2" ry="2" fill="#c9b896" stroke="#27ae60" stroke-width="2"/>
-                            <text x="220" y="485" text-anchor="middle" font-size="8" fill="#555">Important Objects</text>
-
-                            <rect x="285" y="405" width="100" height="70" rx="4" ry="4" fill="#333" stroke="#bbb" stroke-width="1"/>
-                            <rect x="292" y="412" width="30" height="20" rx="2" ry="2" fill="#d4a574" stroke="none"/>
-                            <rect x="330" y="410" width="45" height="55" rx="2" ry="2" fill="#8e9eab" stroke="none" fill-opacity="0.7"/>
-                            <rect x="288" y="435" width="90" height="30" rx="2" ry="2" fill="#c9b896" stroke="none"/>
-                            <text x="335" y="485" text-anchor="middle" font-size="8" fill="#555">Masked</text>
-
-                            <!-- Image 2 -->
-                            <rect x="420" y="405" width="100" height="70" rx="4" ry="4" fill="#ddd8d0" stroke="#bbb" stroke-width="1"/>
-                            <rect x="427" y="415" width="25" height="50" rx="2" ry="2" fill="#a0a0a0" stroke="none"/>
-                            <rect x="460" y="425" width="50" height="40" rx="2" ry="2" fill="#b8a88a" stroke="none"/>
-                            <text x="470" y="485" text-anchor="middle" font-size="8" fill="#555">Original</text>
-
-                            <rect x="535" y="405" width="100" height="70" rx="4" ry="4" fill="#f5f5f5" stroke="#bbb" stroke-width="1"/>
-                            <rect x="542" y="415" width="25" height="50" rx="2" ry="2" fill="#a0a0a0" stroke="#e74c3c" stroke-width="2"/>
-                            <rect x="575" y="425" width="50" height="40" rx="2" ry="2" fill="#b8a88a" stroke="#27ae60" stroke-width="2"/>
-                            <text x="585" y="485" text-anchor="middle" font-size="8" fill="#555">Important Objects</text>
-
-                            <rect x="650" y="405" width="100" height="70" rx="4" ry="4" fill="#333" stroke="#bbb" stroke-width="1"/>
-                            <rect x="657" y="415" width="25" height="50" rx="2" ry="2" fill="#a0a0a0" stroke="none" fill-opacity="0.7"/>
-                            <rect x="690" y="425" width="50" height="40" rx="2" ry="2" fill="#b8a88a" stroke="none"/>
-                            <text x="700" y="485" text-anchor="middle" font-size="8" fill="#555">Masked</text>
-
-                            <!-- Labels for evidence grouping -->
-                            <text x="220" y="505" text-anchor="middle" font-size="8.5" fill="#888">Example 1 (sculpture + wall + sofa)</text>
-                            <text x="585" y="505" text-anchor="middle" font-size="8.5" fill="#888">Example 2 (sculpture + wall + cushion)</text>
-
-                            <!-- Color legend -->
-                            <rect x="55" y="520" width="10" height="10" rx="2" ry="2" fill="none" stroke="#e74c3c" stroke-width="2"/>
-                            <text x="72" y="529" font-size="8" fill="#555">sculpture (query anchor)</text>
-                            <rect x="215" y="520" width="10" height="10" rx="2" ry="2" fill="none" stroke="#27ae60" stroke-width="2"/>
-                            <text x="232" y="529" font-size="8" fill="#555">co-occurring objects</text>
-                            <rect x="375" y="520" width="10" height="10" rx="2" ry="2" fill="none" stroke="#3498db" stroke-width="2"/>
-                            <text x="392" y="529" font-size="8" fill="#555">other detected objects</text>
-
-                            <!-- Co-occurrence mini bar chart -->
-                            <rect x="55" y="540" width="336" height="7" rx="3" ry="3" fill="#eee"/>
-                            <rect x="55" y="540" width="269" height="7" rx="3" ry="3" fill="#27ae60" fill-opacity="0.7"/>
-                            <text x="55" y="558" font-size="7.5" fill="#555">wall: 80%</text>
-
-                            <rect x="55" y="562" width="336" height="7" rx="3" ry="3" fill="#eee"/>
-                            <rect x="55" y="562" width="202" height="7" rx="3" ry="3" fill="#27ae60" fill-opacity="0.5"/>
-                            <text x="55" y="580" font-size="7.5" fill="#555">sofa: 60%</text>
-
-                            <rect x="430" y="540" width="336" height="7" rx="3" ry="3" fill="#eee"/>
-                            <rect x="430" y="540" width="179" height="7" rx="3" ry="3" fill="#27ae60" fill-opacity="0.4"/>
-                            <text x="430" y="558" font-size="7.5" fill="#555">cushion: 53%</text>
-
-                            <rect x="430" y="562" width="336" height="7" rx="3" ry="3" fill="#eee"/>
-                            <rect x="430" y="562" width="157" height="7" rx="3" ry="3" fill="#27ae60" fill-opacity="0.3"/>
-                            <text x="430" y="580" font-size="7.5" fill="#555">coffee_table: 47%</text>
-                        </svg>
+                    <div style="margin-top:20px; text-align:center;">
+                        <img src="resources/case_study.png" alt="End-to-end case study: co-occurrence query producing NL summary, statistics, and evidence images with highlighted objects" style="max-width:100%; border-radius:8px; border:1px solid #e9ecef;" />
                         <p style="text-align:center; font-size:0.85em; color:#666; margin-top:10px; font-style:italic;">Full end-to-end case study: from natural language question through SQL generation, execution, structured results, NL answer, and visual evidence with highlighted objects.</p>
                     </div>
                 </div>
