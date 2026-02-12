@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GABAR Results Charts</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: white;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .chart-container {
+            margin: 30px 0;
+            padding: 30px;
+            background: #fafafa;
+            border-radius: 12px;
+        }
+        h2 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        .chart {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-label {
+            width: 140px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #444;
+            text-align: right;
+        }
+        .chart-bar-container {
+            flex: 1;
+            height: 28px;
+            background: #eee;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-bar {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: white;
+            transition: width 0.5s;
+        }
+        .chart-bar.small-text {
+            justify-content: flex-start;
+            padding-left: 8px;
+            color: #333;
+        }
+        .group-label {
+            font-size: 0.75em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 12px 0 4px 150px;
+            font-weight: 600;
+        }
+        .divider {
+            border-top: 1px solid #ddd;
+            margin: 8px 0 8px 150px;
+        }
+        .caption {
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 15px;
+            text-align: center;
+            font-style: italic;
+        }
+        .chart-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .chart-title h3 {
+            font-size: 1.1em;
+            color: #333;
+            margin: 0;
+        }
+        .chart-title p {
+            font-size: 0.8em;
+            color: #888;
+            margin: 4px 0 0;
+        }
+        .difficulty-section {
+            margin-bottom: 20px;
+        }
+        .difficulty-header {
+            font-weight: 700;
+            font-size: 0.9em;
+            color: #555;
+            margin: 15px 0 8px 0;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- CHART 1: Coverage Comparison -->
+<div class="chart-container">
+    <div class="chart-title">
+        <h3>Coverage (% Problems Solved) by Difficulty</h3>
+        <p>Averaged across 8 planning domains | 100 test problems per difficulty level</p>
+    </div>
+
+    <div class="difficulty-section">
+        <div class="difficulty-header">Easy Problems</div>
+        <div class="chart">
+            <div class="chart-row">
+                <div class="chart-label">GABAR (ours)</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 95.5%; background: #00A3A1;">95.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GPL</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 79.1%; background: #7ab8b6;">79.1%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">ASNets</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 76%; background: #9ec5c4;">76.0%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GRAPL</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 43.5%; background: #bfd8d7;">43.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">Gemini 2.5 Pro</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 44%; background: #d4a0e5;">44.0%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">OpenAI O3</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 33.4%; background: #c490d8;">33.4%</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="difficulty-section">
+        <div class="difficulty-header">Medium Problems</div>
+        <div class="chart">
+            <div class="chart-row">
+                <div class="chart-label">GABAR (ours)</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 92.2%; background: #00A3A1;">92.2%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GPL</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 28.5%; background: #7ab8b6;">28.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">ASNets</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 65.4%; background: #9ec5c4;">65.4%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GRAPL</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 29.3%; background: #bfd8d7;">29.3%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">Gemini 2.5 Pro</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 17.1%; background: #d4a0e5;">17.1%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">OpenAI O3</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 11.6%; background: #c490d8;">11.6%</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="difficulty-section">
+        <div class="difficulty-header">Hard Problems (up to 8x training size)</div>
+        <div class="chart">
+            <div class="chart-row">
+                <div class="chart-label">GABAR (ours)</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 89.2%; background: #00A3A1;">89.2%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GPL</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 6.5%; background: #7ab8b6;">6.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">ASNets</div>
+                <div class="chart-bar-container"><div class="chart-bar" style="width: 48.5%; background: #9ec5c4;">48.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">GRAPL</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 22.1%; background: #bfd8d7;">22.1%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">Gemini 2.5 Pro</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 3%; background: #d4a0e5;">1.5%</div></div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">OpenAI O3</div>
+                <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 2%; background: #c490d8;">0.4%</div></div>
+            </div>
+        </div>
+    </div>
+    <p class="caption">GABAR maintains ~89% coverage on hard problems while all baselines and LLMs collapse below 50%.</p>
+</div>
+
+<!-- CHART 2: Ablation Impact -->
+<div class="chart-container">
+    <div class="chart-title">
+        <h3>Ablation Study: Coverage on Hard Problems</h3>
+        <p>Each bar shows coverage when one component is removed from GABAR</p>
+    </div>
+
+    <div class="chart">
+        <div class="chart-row">
+            <div class="chart-label">Full GABAR</div>
+            <div class="chart-bar-container"><div class="chart-bar" style="width: 89.2%; background: #00A3A1;">89.2%</div></div>
+        </div>
+        <div class="divider" style="margin-left:0"></div>
+        <div class="chart-row">
+            <div class="chart-label" style="color:#c0392b;">− Cond. Decoder</div>
+            <div class="chart-bar-container"><div class="chart-bar" style="width: 60%; background: #e67e22;">60.0%</div></div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-label" style="color:#c0392b;">− Global Node</div>
+            <div class="chart-bar-container"><div class="chart-bar" style="width: 42.5%; background: #e74c3c;">42.5%</div></div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-label" style="color:#c0392b;">− Ranking Obj.</div>
+            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 12.1%; background: #c0392b;">12.1%</div></div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-label" style="color:#c0392b;">− Action Nodes</div>
+            <div class="chart-bar-container"><div class="chart-bar small-text" style="width: 7.4%; background: #922b21;">7.4%</div></div>
+        </div>
+    </div>
+    <p class="caption">Removing action nodes or the ranking objective causes near-total failure. Each component is necessary for the system to work at scale.</p>
+</div>
+
+<p style="text-align:center; color:#999; font-size: 0.85em; margin-top: 30px;">Screenshot these charts and upload them as images in your Substack post.</p>
+
+</body>
+</html>

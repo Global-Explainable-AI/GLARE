@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GABAR: Interactive Graph Construction</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .ig-container { max-width: 960px; width: 100%; }
+        .ig-title { text-align: center; color: #333; margin-bottom: 4px; font-size: 1.3em; font-weight: 700; }
+        .ig-subtitle { text-align: center; color: #777; font-size: 0.9em; margin-bottom: 16px; }
+        .ig-layout { display: flex; gap: 12px; align-items: stretch; justify-content: center; }
+        .ig-states { background: white; border-radius: 10px; padding: 16px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; width: 175px; flex-shrink: 0; }
+        .ig-states h4 { font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .ig-graph { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex: 1; }
+        .ig-graph h4 { font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center; }
+        .ig-arrow { font-size: 1.6em; color: #ccc; align-self: center; padding: 0 2px; }
+        .ig-block { cursor: pointer; }
+        .ig-block rect { transition: stroke-width 0.2s, filter 0.2s; }
+        .ig-node { cursor: pointer; }
+        .ig-node circle, .ig-node rect { transition: stroke-width 0.2s, filter 0.2s, opacity 0.3s; }
+        .ig-edge { transition: stroke-width 0.3s, opacity 0.3s; }
+        .ig-dimmed { opacity: 0.12 !important; }
+        .ig-highlighted circle, .ig-highlighted rect { stroke-width: 3.5px !important; filter: drop-shadow(0 0 5px rgba(0,0,0,0.25)); }
+        .ig-highlighted-block rect { stroke-width: 3px !important; filter: drop-shadow(0 0 6px rgba(0,0,0,0.3)); }
+        .ig-edge.ig-highlighted { stroke-width: 3.5px !important; opacity: 1 !important; }
+        .ig-tooltip { position: fixed; background: #333; color: white; padding: 8px 14px; border-radius: 6px; font-size: 0.82em; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 1000; max-width: 260px; line-height: 1.4; }
+        .ig-tooltip.visible { opacity: 1; }
+        .ig-legend { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 10px; gap: 4px 16px; max-width: 380px; margin-left: auto; margin-right: auto; }
+        .ig-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75em; color: #666; }
+        .ig-legend-dot { width: 11px; height: 11px; border-radius: 50%; }
+        .ig-legend-line { width: 16px; height: 3px; border-radius: 2px; }
+        .ig-instructions { text-align: center; color: #999; font-size: 0.8em; margin-top: 10px; font-style: italic; }
+        .ig-demo-btn { display: block; margin: 10px auto 0; padding: 6px 16px; background: #4a90d9; color: white; border: none; border-radius: 6px; font-size: 0.8em; cursor: pointer; font-weight: 600; }
+        .ig-demo-btn:hover { background: #3a7bc8; }
+        .ig-demo-btn.active { background: #e63946; }
+    </style>
+</head>
+<body>
+<div class="ig-container">
+    <div class="ig-title">How GABAR Converts a Planning State to a Graph</div>
+    <p class="ig-subtitle">Hover over blocks in the start/goal state to see which graph elements they connect to</p>
+
+    <div class="ig-layout">
+        <div class="ig-states">
+            <h4>Start State</h4>
+            <svg width="150" height="140" viewBox="0 0 150 140">
+                <rect x="10" y="130" width="130" height="5" rx="2" fill="#4a90d9" opacity="0.4"/>
+                <g class="ig-block" data-hover="start-O2"><rect x="25" y="85" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="51" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text></g>
+                <g class="ig-block" data-hover="start-O3"><rect x="25" y="42" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="51" y="67" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text></g>
+                <g class="ig-block" data-hover="start-O1"><rect x="90" y="85" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="116" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text></g>
+            </svg>
+            <h4 style="margin-top:8px;">Goal State</h4>
+            <svg width="150" height="160" viewBox="0 0 150 160">
+                <rect x="10" y="148" width="130" height="5" rx="2" fill="#4a90d9" opacity="0.4"/>
+                <g class="ig-block" data-hover="goal-O1"><rect x="47" y="105" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="130" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text></g>
+                <g class="ig-block" data-hover="goal-O2"><rect x="47" y="63" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text></g>
+                <g class="ig-block" data-hover="goal-O3"><rect x="47" y="21" width="52" height="40" rx="7" fill="#fff9c4" stroke="#f9a825" stroke-width="2" stroke-dasharray="5,3"/><text x="73" y="46" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text></g>
+                <text x="75" y="158" text-anchor="middle" font-size="8.5" fill="#aaa">(dashed = goal)</text>
+            </svg>
+        </div>
+
+        <div class="ig-arrow">→</div>
+
+        <div class="ig-graph">
+            <h4>Graph Representation</h4>
+            <svg id="ig-graph-svg" width="100%" viewBox="0 0 520 290" style="max-height:290px;">
+                <!-- EDGES -->
+                <!-- Action edges (solid blue) -->
+                <line class="ig-edge" data-edge="action" data-connects="pickup O1" x1="390" y1="55" x2="390" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
+                <line class="ig-edge" data-edge="action" data-connects="unstack O3" x1="130" y1="55" x2="130" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
+                <line class="ig-edge" data-edge="action" data-connects="unstack O2" x1="130" y1="55" x2="260" y2="120" stroke="#4a90d9" stroke-width="2.5" opacity="0.6"/>
+                <!-- Current pred edges (solid red) -->
+                <line class="ig-edge" data-edge="current-pred" data-connects="on_O3O2 O3" x1="95" y1="220" x2="130" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <line class="ig-edge" data-edge="current-pred" data-connects="on_O3O2 O2" x1="95" y1="220" x2="260" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <line class="ig-edge" data-edge="current-pred" data-connects="clear_O3 O3" x1="225" y1="220" x2="130" y2="170" stroke="#e57373" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <!-- Goal pred edges (dashed green) -->
+                <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O2O1 O2" x1="355" y1="220" x2="260" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O2O1 O1" x1="355" y1="220" x2="390" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O3O2 O3" x1="470" y1="220" x2="130" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+                <line class="ig-edge" data-edge="goal-pred" data-connects="g_on_O3O2 O2" x1="470" y1="220" x2="260" y2="170" stroke="#4caf50" stroke-width="2" opacity="0.5" stroke-dasharray="5,3"/>
+
+                <!-- ACTION NODES (blue rectangles) -->
+                <g class="ig-node" data-ntype="action" data-id="unstack" data-tip="Unstack(O3,O2): removes O3 from on top of O2. Connected to O3 and O2.">
+                    <rect x="60" y="22" width="140" height="38" rx="6" fill="#4a90d9" stroke="#2d6eb5" stroke-width="2"/>
+                    <text x="130" y="46" text-anchor="middle" font-size="12" fill="white" font-weight="700">Unstack(O3, O2)</text>
+                </g>
+                <g class="ig-node" data-ntype="action" data-id="pickup" data-tip="PickUp(O1): picks up O1 from the table. Connected to O1.">
+                    <rect x="325" y="22" width="130" height="38" rx="6" fill="#4a90d9" stroke="#2d6eb5" stroke-width="2"/>
+                    <text x="390" y="46" text-anchor="middle" font-size="12" fill="white" font-weight="700">PickUp(O1)</text>
+                </g>
+
+                <!-- OBJECT NODES (all same yellow) -->
+                <g class="ig-node" data-ntype="object" data-id="O3" data-tip="Object O3: clear, on top of O2. Connected to Unstack, On(O3,O2), Clear(O3), and Goal:On(O3,O2).">
+                    <circle cx="130" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
+                    <text x="130" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O3</text>
+                </g>
+                <g class="ig-node" data-ntype="object" data-id="O2" data-tip="Object O2: has O3 on top. Connected to Unstack, On(O3,O2), Goal:On(O2,O1), and Goal:On(O3,O2).">
+                    <circle cx="260" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
+                    <text x="260" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O2</text>
+                </g>
+                <g class="ig-node" data-ntype="object" data-id="O1" data-tip="Object O1: clear, on table. Connected to PickUp and Goal:On(O2,O1).">
+                    <circle cx="390" cy="145" r="24" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
+                    <text x="390" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#5d4037">O1</text>
+                </g>
+
+                <!-- CURRENT PREDICATE NODES (red/pink) -->
+                <g class="ig-node" data-ntype="current-pred" data-id="on_O3O2" data-tip="On(O3,O2): O3 is currently on top of O2.">
+                    <rect x="40" y="218" width="110" height="30" rx="15" fill="#e57373" stroke="#c62828" stroke-width="1.5"/>
+                    <text x="95" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">On(O3, O2)</text>
+                </g>
+                <g class="ig-node" data-ntype="current-pred" data-id="clear_O3" data-tip="Clear(O3): O3 has nothing on top of it.">
+                    <rect x="165" y="218" width="110" height="30" rx="15" fill="#e57373" stroke="#c62828" stroke-width="1.5"/>
+                    <text x="220" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Clear(O3)</text>
+                </g>
+
+                <!-- GOAL PREDICATE NODES (green) -->
+                <g class="ig-node" data-ntype="goal-pred" data-id="g_on_O2O1" data-tip="Goal: On(O2,O1) — O2 needs to be placed on O1 to build the tower.">
+                    <rect x="290" y="218" width="130" height="30" rx="15" fill="#4caf50" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="355" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Goal: On(O2, O1)</text>
+                </g>
+                <g class="ig-node" data-ntype="goal-pred" data-id="g_on_O3O2" data-tip="Goal: On(O3,O2) — O3 should remain on O2 (already true).">
+                    <rect x="430" y="218" width="130" height="30" rx="15" fill="#4caf50" stroke="#2e7d32" stroke-width="1.5"/>
+                    <text x="495" y="237" text-anchor="middle" font-size="10.5" fill="white" font-weight="600">Goal: On(O3, O2)</text>
+                </g>
+            </svg>
+
+            <div class="ig-legend">
+                <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#4a90d9;"></div>Action node</div>
+                <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#fff9c4;border:2px solid #f9a825;"></div>Object node</div>
+                <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#e57373;border-radius:3px;"></div>Current predicate</div>
+                <div class="ig-legend-item"><div class="ig-legend-dot" style="background:#4caf50;border-radius:3px;"></div>Goal predicate</div>
+                <div class="ig-legend-item"><div class="ig-legend-line" style="background:#4a90d9;"></div>Action-object edge</div>
+                <div class="ig-legend-item"><div class="ig-legend-line" style="background:#e57373;border-top:2px dashed #e57373;height:0;"></div>Predicate-object edge</div>
+                <div class="ig-legend-item"><div class="ig-legend-line" style="background:#4caf50;border-top:2px dashed #4caf50;height:0;"></div>Goal-predicate edge</div>
+            </div>
+        </div>
+    </div>
+
+    <p class="ig-instructions">Hover over blocks (left) or graph nodes (right). Start-state blocks → actions + current predicates. Goal-state blocks → goal predicates.</p>
+    <button class="ig-demo-btn" id="demo-btn">Auto Demo (for GIF recording)</button>
+</div>
+
+<div class="ig-tooltip" id="ig-tooltip"></div>
+
+<script>
+(function() {
+    var tooltip = document.getElementById('ig-tooltip');
+    var allNodes = document.querySelectorAll('.ig-node');
+    var allEdges = document.querySelectorAll('.ig-edge');
+    var allBlocks = document.querySelectorAll('.ig-block');
+
+    var startMap = {
+        'start-O1': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: [] },
+        'start-O2': { objects: ['O2'], actions: ['unstack'], currentPreds: ['on_O3O2'], goalPreds: [] },
+        'start-O3': { objects: ['O3'], actions: ['unstack'], currentPreds: ['on_O3O2', 'clear_O3'], goalPreds: [] }
+    };
+    var goalMap = {
+        'goal-O1': { objects: ['O1'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1'] },
+        'goal-O2': { objects: ['O2'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1', 'g_on_O3O2'] },
+        'goal-O3': { objects: ['O3'], actions: [], currentPreds: [], goalPreds: ['g_on_O3O2'] }
+    };
+    var nodeMap = {
+        'pickup': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: [] },
+        'unstack': { objects: ['O2', 'O3'], actions: ['unstack'], currentPreds: [], goalPreds: [] },
+        'O1': { objects: ['O1'], actions: ['pickup'], currentPreds: [], goalPreds: ['g_on_O2O1'] },
+        'O2': { objects: ['O2'], actions: ['unstack'], currentPreds: ['on_O3O2'], goalPreds: ['g_on_O2O1', 'g_on_O3O2'] },
+        'O3': { objects: ['O3'], actions: ['unstack'], currentPreds: ['on_O3O2', 'clear_O3'], goalPreds: ['g_on_O3O2'] },
+        'clear_O3': { objects: ['O3'], actions: [], currentPreds: ['clear_O3'], goalPreds: [] },
+        'on_O3O2': { objects: ['O2', 'O3'], actions: [], currentPreds: ['on_O3O2'], goalPreds: [] },
+        'g_on_O2O1': { objects: ['O1', 'O2'], actions: [], currentPreds: [], goalPreds: ['g_on_O2O1'] },
+        'g_on_O3O2': { objects: ['O2', 'O3'], actions: [], currentPreds: [], goalPreds: ['g_on_O3O2'] }
+    };
+
+    function showTip(e, t) { tooltip.textContent = t; tooltip.classList.add('visible'); moveTip(e); }
+    function moveTip(e) { tooltip.style.left = (e.clientX + 12) + 'px'; tooltip.style.top = (e.clientY - 8) + 'px'; }
+    function hideTip() { tooltip.classList.remove('visible'); }
+
+    function highlight(m) {
+        allNodes.forEach(function(n) { n.classList.add('ig-dimmed'); });
+        allEdges.forEach(function(e) { e.classList.add('ig-dimmed'); });
+        allBlocks.forEach(function(b) { b.classList.add('ig-dimmed'); });
+        m.objects.forEach(function(id) {
+            document.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); });
+            document.querySelectorAll('.ig-block[data-hover*="'+id+'"]').forEach(function(b) { b.classList.remove('ig-dimmed'); b.classList.add('ig-highlighted-block'); });
+        });
+        m.actions.forEach(function(id) { document.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
+        m.currentPreds.forEach(function(id) { document.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
+        m.goalPreds.forEach(function(id) { document.querySelectorAll('.ig-node[data-id="'+id+'"]').forEach(function(n) { n.classList.remove('ig-dimmed'); n.classList.add('ig-highlighted'); }); });
+        allEdges.forEach(function(edge) {
+            var c = edge.dataset.connects.split(' '), et = edge.dataset.edge, h = false;
+            if (et === 'action' && m.actions.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
+            if (et === 'current-pred' && m.currentPreds.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
+            if (et === 'goal-pred' && m.goalPreds.indexOf(c[0]) >= 0 && m.objects.indexOf(c[1]) >= 0) h = true;
+            if (h) { edge.classList.remove('ig-dimmed'); edge.classList.add('ig-highlighted'); }
+        });
+    }
+    function clearAll() {
+        allNodes.forEach(function(n) { n.classList.remove('ig-dimmed', 'ig-highlighted'); });
+        allEdges.forEach(function(e) { e.classList.remove('ig-dimmed', 'ig-highlighted'); });
+        allBlocks.forEach(function(b) { b.classList.remove('ig-dimmed', 'ig-highlighted-block'); });
+    }
+
+    allBlocks.forEach(function(block) {
+        var key = block.dataset.hover;
+        block.addEventListener('mouseenter', function(e) {
+            var m = startMap[key] || goalMap[key]; if (m) highlight(m);
+            var obj = key.split('-')[1];
+            showTip(e, key.startsWith('goal') ? 'Goal: '+obj+' — see goal predicates (green)' : 'Current: '+obj+' — see actions & current predicates');
+        });
+        block.addEventListener('mousemove', moveTip);
+        block.addEventListener('mouseleave', function() { clearAll(); hideTip(); });
+    });
+    allNodes.forEach(function(node) {
+        var id = node.dataset.id;
+        node.addEventListener('mouseenter', function(e) { var m = nodeMap[id]; if (m) highlight(m); showTip(e, node.dataset.tip); });
+        node.addEventListener('mousemove', moveTip);
+        node.addEventListener('mouseleave', function() { clearAll(); hideTip(); });
+    });
+
+    // Auto demo
+    var demoInterval = null, demoStep = 0;
+    var demoSeq = [
+        'start-O3', null, 'start-O2', null, 'start-O1', null,
+        'goal-O1', null, 'goal-O2', null, 'goal-O3', null,
+        'node-unstack', null, 'node-pickup', null, 'node-g_on_O2O1', null
+    ];
+    var demoBtn = document.getElementById('demo-btn');
+    demoBtn.addEventListener('click', function() {
+        if (demoInterval) { clearInterval(demoInterval); demoInterval = null; demoBtn.textContent = 'Auto Demo (for GIF recording)'; demoBtn.classList.remove('active'); clearAll(); }
+        else { demoStep = 0; demoBtn.textContent = 'Stop Demo'; demoBtn.classList.add('active'); runStep(); demoInterval = setInterval(runStep, 1800); }
+    });
+    function runStep() {
+        var key = demoSeq[demoStep % demoSeq.length];
+        clearAll();
+        if (key) {
+            var m;
+            if (key.startsWith('start-')) m = startMap[key];
+            else if (key.startsWith('goal-')) m = goalMap[key];
+            else if (key.startsWith('node-')) m = nodeMap[key.replace('node-', '')];
+            if (m) highlight(m);
+        }
+        demoStep++;
+    }
+})();
+</script>
+</body>
+</html>
