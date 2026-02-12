@@ -370,6 +370,7 @@
               <a href="https://rajeshdm.github.io" target="_blank">Rajesh Mangannavar</a>,
               <a href="https://bhavanvasu.com" target="_blank">Bhavan Vasu</a>
               <br><br>
+              <img src="resources/OSU_horizontal_2C_O_over_B.png" alt="Oregon State University" style="height: 50px; vertical-align: middle; margin-right: 8px;" />
               Oregon State University
             </span>
           </div>
@@ -535,7 +536,7 @@
                     </span>
                 </div>
                 <div class="dropdown-content">
-                    <p>Some approaches use LLMs to directly generate natural language explanations. However, this risks hallucination&mdash;the LLM might produce plausible-sounding but incorrect explanations. GLARE avoids this by using the LLM as a <em>semantic parser</em> that maps questions to deterministic SQL queries. The answers come from the actual explanation data, not from the LLM's imagination.</p>
+                    <p>Some approaches use LLMs to directly generate natural language explanations. However, this risks hallucination&mdash;the LLM might produce plausible-sounding but incorrect explanations. GLARE avoids this by using the LLM as a <em>semantic parser</em> that maps questions to deterministic SQL queries. The data retrieval is grounded in the actual explanation database, not the LLM's imagination. Note that a final LLM step formats results into natural language, so some residual presentation risk remains&mdash;but the underlying facts are always sourced from the database.</p>
                 </div>
             </div>
             <hr>
@@ -1291,6 +1292,12 @@
                         <div class="query-a">"Sculptures in living rooms most often appear with walls (80% of the time), followed by sofas (60%). Other common objects found alongside sculptures include cushions, coffee tables, and windowpanes."</div>
                     </div>
                     <p>The system generates a complex co-occurrence SQL query with correlated subquery, executes it, and returns a multi-modal response: fluent NL summary, quantitative statistics (wall 80%, sofa 60%, cushion 53%...), and top-3 evidence images showing original images, important objects, and masked highlights.</p>
+
+                    <!-- Case Study Figure: End-to-end multimodal response -->
+                    <div style="margin-top:20px; text-align:center;">
+                        <img src="resources/case_study.png" alt="End-to-end case study: co-occurrence query producing NL summary, statistics, and evidence images with highlighted objects" style="max-width:100%; border-radius:8px; border:1px solid #e9ecef;" />
+                        <p style="text-align:center; font-size:0.85em; color:#666; margin-top:10px; font-style:italic;">Full end-to-end case study: from natural language question through SQL generation, execution, structured results, NL answer, and visual evidence with highlighted objects.</p>
+                    </div>
                 </div>
             </div>
             <div class="dropdown-item">

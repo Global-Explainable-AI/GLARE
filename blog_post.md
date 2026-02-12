@@ -1,6 +1,6 @@
 # Stop Explaining Models. Start Letting Users Ask Questions.
 
-*How treating global explanations as databases—and LLMs as semantic parsers, not generators—creates an XAI interface that achieves 95% accuracy, transfers to new datasets at 90%, and sidesteps the hallucination problem entirely.*
+*How treating global explanations as databases—and LLMs as semantic parsers, not generators—creates an XAI interface that achieves 95% accuracy, transfers to new datasets at 90%, and dramatically reduces the risk of hallucination in the data retrieval pipeline.*
 
 ---
 
@@ -36,7 +36,7 @@ The second observation is about LLMs. Everyone is using LLMs to *generate* expla
 
 **KEY INSIGHT**: Use LLMs as *semantic parsers*, not generators. The LLM translates natural language questions into SQL. The answers come from the actual explanation data. The LLM never touches the content of the explanation—it only handles the *form* of the query.
 
-This gives you the best of both worlds: the flexibility of natural language input with the formal correctness of database queries. No hallucination possible, because every answer is computed deterministically from ground-truth data.
+This gives you the best of both worlds: the flexibility of natural language input with the formal correctness of database queries. The core data retrieval is hallucination-free, because the SQL query and its results are computed deterministically from ground-truth data. (Note: a final LLM call formats the results into natural language, so some residual risk remains at the presentation layer — but the *facts* come from the database, not the LLM.)
 
 ---
 
@@ -158,7 +158,7 @@ Even 2B models transfer at 90%. The model learned SQL's compositional structure,
 
 ### 1. Use LLMs for Structure, Not Content
 
-When you need both flexibility and faithfulness, **use the LLM to handle structure and let a deterministic system handle content**. GLARE uses the LLM to parse natural language into SQL (structural mapping). The answers come from database execution (deterministic content). This eliminates hallucination by construction.
+When you need both flexibility and faithfulness, **use the LLM to handle structure and let a deterministic system handle content**. GLARE uses the LLM to parse natural language into SQL (structural mapping). The answers come from database execution (deterministic content). This dramatically reduces hallucination risk — the data retrieval is deterministic and faithful. A final LLM step formats results into natural language, so the presentation layer still carries some risk, but the underlying facts are grounded in the actual explanation database.
 
 This pattern applies broadly:
 - **Medical diagnosis support**: LLM parses symptoms into database queries over clinical guidelines
@@ -216,10 +216,10 @@ GLARE demonstrates that the bottleneck in explainable AI is not generating bette
 - Achieves 95% query accuracy across diverse question types
 - Transfers to new datasets at 90.6% without retraining
 - Handles spelling errors, synonyms, and verbose input gracefully
-- Eliminates hallucination by construction, not by hope
+- Grounds all data retrieval in verified database queries, dramatically reducing hallucination risk
 - Runs on 2B-parameter models with no performance loss
 
-The broader lesson: when you need trustworthy answers from flexible input, let the LLM handle structure and let a verified system handle content. This "LLM as parser" pattern sidesteps the hallucination problem entirely and applies far beyond explainability.
+The broader lesson: when you need trustworthy answers from flexible input, let the LLM handle structure and let a verified system handle content. This "LLM as parser" pattern dramatically reduces hallucination risk and applies far beyond explainability.
 
 The even broader lesson: if your users are drowning in information, the solution isn't better information—it's a better question-and-answer interface. Explanations aren't documents. They're databases waiting for the right query.
 
