@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="GLARE Interactive Demo: Ask natural language questions about image classification explanations">
+  <meta name="keywords" content="explainable AI, XAI, global explanations, natural language interface, LLM, text-to-SQL, GLARE, demo">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GLARE Interactive Demo</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./resources/favicon.ico">
+  <script src="https://kit.fontawesome.com/006a5775d5.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+        font-family: 'Noto Sans', sans-serif;
+        background: #fafafa;
+    }
+
+    /* Header */
+    .demo-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        color: #fff;
+        padding: 2.5rem 1.5rem 2rem;
+        text-align: center;
+    }
+    .demo-hero h1 {
+        font-family: 'Google Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .demo-hero p {
+        font-size: 1.05rem;
+        opacity: 0.85;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+    .demo-hero .back-link {
+        display: inline-block;
+        margin-top: 1rem;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .demo-hero .back-link:hover { color: #fff; }
+    .demo-hero .back-link i { margin-right: 5px; }
+
+    /* Main container */
+    .demo-container {
+        max-width: 780px;
+        margin: -1.5rem auto 3rem;
+        padding: 0 1.2rem;
+    }
+
+    /* Search card */
+    .demo-search-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 1.8rem 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Search bar */
+    .demo-search-wrapper {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 2px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 0 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .demo-search-wrapper:focus-within {
+        border-color: #3273dc;
+        box-shadow: 0 0 0 3px rgba(50,115,220,0.15);
+    }
+    .demo-search-icon {
+        color: #b5b5b5;
+        margin-right: 10px;
+        font-size: 1rem;
+    }
+    .demo-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 1.05rem;
+        padding: 12px 0;
+        background: transparent;
+        font-family: inherit;
+    }
+    .demo-clear-btn {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        color: #aaa;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 1;
+    }
+    .demo-clear-btn:hover { color: #555; }
+
+    /* Suggestions dropdown */
+    .demo-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: #fff;
+        border: 1px solid #dbdbdb;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 50;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .demo-suggestion-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        border-bottom: 1px solid #f5f5f5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .demo-suggestion-item:last-child { border-bottom: none; }
+    .demo-suggestion-item:hover,
+    .demo-suggestion-item.active { background: #f0f4ff; }
+    .demo-suggestion-item .cat-tag {
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        border-radius: 10px;
+        background: #eef;
+        color: #555;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .demo-suggestion-item mark {
+        background: #fff3cd;
+        padding: 0;
+        border-radius: 2px;
+    }
+
+    /* Filter chips */
+    .demo-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-top: 1rem;
+    }
+    .demo-filter-label {
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 600;
+    }
+    .demo-chip {
+        padding: 5px 14px;
+        border-radius: 20px;
+        border: 1px solid #dbdbdb;
+        background: #fff;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+    }
+    .demo-chip:hover { border-color: #3273dc; color: #3273dc; }
+    .demo-chip.active {
+        background: #3273dc;
+        color: #fff;
+        border-color: #3273dc;
+    }
+
+    /* Sample questions */
+    .demo-sample-questions {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .demo-sample-q {
+        padding: 10px 14px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-left: 3px solid #3273dc;
+        border-radius: 0 6px 6px 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.15s;
+        line-height: 1.4;
+    }
+    .demo-sample-q:hover {
+        background: #eef2ff;
+        border-left-color: #2158b8;
+        transform: translateX(2px);
+    }
+
+    /* Refresh samples button */
+    .demo-refresh-row {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .demo-refresh-btn {
+        background: none;
+        border: 1px solid #dbdbdb;
+        border-radius: 5px;
+        padding: 6px 16px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        color: #888;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    .demo-refresh-btn:hover { border-color: #3273dc; color: #3273dc; }
+    .demo-refresh-btn i { margin-right: 5px; }
+
+    /* Result card */
+    .demo-result {
+        background: #fff;
+        border: 1px solid #dbdbdb;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        margin-bottom: 1.5rem;
+    }
+    .demo-result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #fff;
+    }
+    .demo-result-badge {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .demo-result-close {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        line-height: 1;
+    }
+    .demo-result-close:hover { color: #fff; }
+    .demo-result-question {
+        padding: 16px 20px 8px;
+        font-weight: 600;
+        color: #3273dc;
+        font-size: 1.05rem;
+    }
+    .demo-result-answer {
+        padding: 8px 20px 16px;
+        color: #2d6a2e;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    .demo-answer-placeholder {
+        color: #aaa;
+        font-style: italic;
+    }
+    .demo-sql-toggle-area {
+        padding: 0 20px 14px;
+    }
+    .demo-sql-toggle {
+        background: none;
+        border: 1px solid #dbdbdb;
+        border-radius: 5px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        color: #666;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    .demo-sql-toggle:hover { border-color: #3273dc; color: #3273dc; }
+    .demo-sql-toggle.open { background: #f5f7fa; border-color: #3273dc; color: #3273dc; }
+    .demo-result-sql {
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        padding: 16px 20px;
+    }
+    .demo-result-sql pre {
+        margin: 0;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+    .demo-result-sql code {
+        background: transparent;
+        padding: 0;
+    }
+
+    /* Stats bar */
+    .demo-stats {
+        text-align: center;
+        color: #999;
+        font-size: 0.8rem;
+        padding: 1rem 0 0;
+    }
+
+    /* Footer */
+    .demo-footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #aaa;
+        font-size: 0.82rem;
+    }
+    .demo-footer a { color: #3273dc; text-decoration: none; }
+    .demo-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+
+<!-- Hero header -->
+<div class="demo-hero">
+    <h1>GLARE Interactive Demo</h1>
+    <p>Ask natural language questions about image classification explanations and see the system's response in real time.</p>
+    <a href="./index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to paper</a>
+</div>
+
+<!-- Main demo area -->
+<div class="demo-container">
+
+    <!-- Search card -->
+    <div class="demo-search-card">
+        <div style="position: relative;">
+            <div class="demo-search-wrapper">
+                <span class="demo-search-icon"><i class="fas fa-search"></i></span>
+                <input type="text" id="demo-query-input" class="demo-search-input"
+                       placeholder="e.g. What percentage of bedroom images contain bed?"
+                       autocomplete="off" spellcheck="false"
+                       aria-label="Type a natural language question">
+                <button id="demo-clear-btn" class="demo-clear-btn" title="Clear" style="display:none;">&times;</button>
+            </div>
+            <div id="demo-suggestions" class="demo-suggestions" style="display:none;"></div>
+        </div>
+
+        <!-- Filter chips -->
+        <div class="demo-filters">
+            <span class="demo-filter-label">Filter:</span>
+            <button class="demo-chip active" data-filter="all">All</button>
+            <button class="demo-chip" data-filter="frequency">Frequency</button>
+            <button class="demo-chip" data-filter="cooccurrence">Co-occurrence</button>
+            <button class="demo-chip" data-filter="top">Top-K</button>
+            <button class="demo-chip" data-filter="rarest">Rarest</button>
+            <button class="demo-chip" data-filter="comparison">Comparison</button>
+            <button class="demo-chip" data-filter="probability">Probability</button>
+            <button class="demo-chip" data-filter="absence">Absence</button>
+            <button class="demo-chip" data-filter="combinations">Combinations</button>
+            <button class="demo-chip" data-filter="general">General</button>
+        </div>
+
+        <div class="demo-stats" id="demo-stats"></div>
+    </div>
+
+    <!-- Sample questions -->
+    <div id="demo-sample-questions" class="demo-sample-questions"></div>
+
+    <div class="demo-refresh-row">
+        <button id="demo-refresh-btn" class="demo-refresh-btn">
+            <i class="fas fa-sync-alt"></i> Show different questions
+        </button>
+    </div>
+
+    <!-- Result display -->
+    <div id="demo-result" class="demo-result" style="display:none;">
+        <div class="demo-result-header">
+            <span class="demo-result-badge">GLARE Response</span>
+            <button id="demo-result-close" class="demo-result-close" title="Close">&times;</button>
+        </div>
+        <div class="demo-result-question" id="demo-result-q"></div>
+
+        <div class="demo-result-answer" id="demo-result-answer">
+            <span class="demo-answer-placeholder">Natural language answer will appear here once available.</span>
+        </div>
+
+        <div class="demo-sql-toggle-area">
+            <button id="demo-sql-toggle" class="demo-sql-toggle">
+                <i class="fas fa-code"></i> Show generated SQL
+            </button>
+        </div>
+        <div id="demo-result-sql" class="demo-result-sql" style="display:none;">
+            <pre><code id="demo-sql-code"></code></pre>
+        </div>
+    </div>
+
+</div>
+
+<div class="demo-footer">
+    <a href="./index.html">GLARE</a>: A Natural Language Interface for Querying Global Explanations
+</div>
+
+<script>
+(function() {
+    var demoCache = [];
+    var activeFilter = 'all';
+    var selectedIdx = -1;
+
+    // Load cache
+    fetch('./data/demo_cache.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            demoCache = data;
+            updateStats();
+            showSampleQuestions();
+        })
+        .catch(function() {
+            document.getElementById('demo-sample-questions').innerHTML =
+                '<p style="color:#999; text-align:center; grid-column:1/-1;">Demo data could not be loaded. Make sure you are serving this page via a web server (not file://).</p>';
+        });
+
+    // Try to load NL answers overlay
+    fetch('./data/demo_answers.json')
+        .then(function(r) { return r.json(); })
+        .then(function(answers) {
+            var byId = {};
+            var byQ = {};
+            answers.forEach(function(a) {
+                if (a.id) byId[a.id] = a;
+                if (a.question) byQ[a.question.toLowerCase().trim()] = a;
+            });
+            demoCache.forEach(function(entry) {
+                var match = byId[entry.id] || byQ[entry.question.toLowerCase().trim()];
+                if (match) {
+                    if (match.answer) entry.answer = match.answer;
+                    if (match.results) entry.results = match.results;
+                }
+            });
+        })
+        .catch(function() { /* No answers file yet */ });
+
+    function escapeHtml(t) {
+        var d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        var escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var re = new RegExp('(' + escaped + ')', 'gi');
+        return escapeHtml(text).replace(re, '<mark>$1</mark>');
+    }
+
+    function getFiltered() {
+        if (activeFilter === 'all') return demoCache;
+        return demoCache.filter(function(e) { return e.category === activeFilter; });
+    }
+
+    function pickRandom(arr, n) {
+        var copy = arr.slice();
+        var out = [];
+        n = Math.min(n, copy.length);
+        for (var i = 0; i < n; i++) {
+            var idx = Math.floor(Math.random() * copy.length);
+            out.push(copy[idx]);
+            copy.splice(idx, 1);
+        }
+        return out;
+    }
+
+    function updateStats() {
+        var pool = getFiltered();
+        document.getElementById('demo-stats').textContent =
+            pool.length + ' cached queries' + (activeFilter !== 'all' ? ' in "' + activeFilter + '"' : ' across all categories');
+    }
+
+    function showSampleQuestions() {
+        var container = document.getElementById('demo-sample-questions');
+        var pool = getFiltered();
+        var samples = pickRandom(pool, 8);
+        container.innerHTML = '';
+        samples.forEach(function(entry) {
+            var el = document.createElement('div');
+            el.className = 'demo-sample-q';
+            el.textContent = entry.question;
+            el.setAttribute('role', 'button');
+            el.setAttribute('tabindex', '0');
+            el.setAttribute('aria-label', 'Try question: ' + entry.question);
+            el.addEventListener('click', function() { selectEntry(entry); });
+            el.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectEntry(entry); }
+            });
+            container.appendChild(el);
+        });
+    }
+
+    function selectEntry(entry) {
+        var input = document.getElementById('demo-query-input');
+        input.value = entry.question;
+        document.getElementById('demo-clear-btn').style.display = '';
+        hideSuggestions();
+        showResult(entry);
+    }
+
+    function showResult(entry) {
+        var panel = document.getElementById('demo-result');
+        document.getElementById('demo-result-q').textContent = '\u201c' + entry.question + '\u201d';
+
+        var answerEl = document.getElementById('demo-result-answer');
+        if (entry.answer) {
+            answerEl.innerHTML = escapeHtml(entry.answer);
+        } else {
+            answerEl.innerHTML = '<span class="demo-answer-placeholder">Natural language answer will appear here once available.</span>';
+        }
+
+        document.getElementById('demo-sql-code').textContent = entry.sql;
+        document.getElementById('demo-result-sql').style.display = 'none';
+        var toggle = document.getElementById('demo-sql-toggle');
+        toggle.classList.remove('open');
+        toggle.innerHTML = '<i class="fas fa-code"></i> Show generated SQL';
+
+        panel.style.display = '';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideSuggestions() {
+        document.getElementById('demo-suggestions').style.display = 'none';
+        selectedIdx = -1;
+    }
+
+    function showSuggestions(query) {
+        var container = document.getElementById('demo-suggestions');
+        if (!query || query.length < 2) {
+            hideSuggestions();
+            return;
+        }
+        var q = query.toLowerCase();
+        var words = q.split(/\s+/).filter(function(w) { return w.length > 0; });
+        var pool = getFiltered();
+
+        var scored = [];
+        pool.forEach(function(entry) {
+            var text = entry.question.toLowerCase();
+            var matchCount = 0;
+            words.forEach(function(w) {
+                if (text.indexOf(w) !== -1) matchCount++;
+            });
+            if (matchCount > 0) {
+                scored.push({ entry: entry, score: matchCount / words.length });
+            }
+        });
+
+        scored.sort(function(a, b) { return b.score - a.score; });
+        var top = scored.slice(0, 10);
+
+        if (top.length === 0) {
+            container.innerHTML = '<div style="padding:12px 16px; color:#999; font-size:0.9rem;">No matching questions found. Try different keywords.</div>';
+            container.style.display = '';
+            return;
+        }
+
+        container.innerHTML = '';
+        selectedIdx = -1;
+        top.forEach(function(item, i) {
+            var el = document.createElement('div');
+            el.className = 'demo-suggestion-item';
+            el.setAttribute('data-idx', i);
+            el.innerHTML = '<span class="cat-tag">' + escapeHtml(item.entry.category) + '</span>' +
+                           '<span>' + highlightMatch(item.entry.question, query) + '</span>';
+            el.addEventListener('click', function() { selectEntry(item.entry); });
+            container.appendChild(el);
+        });
+        container.style.display = '';
+    }
+
+    // Input events
+    var input = document.getElementById('demo-query-input');
+    var debounceTimer;
+    input.addEventListener('input', function() {
+        var val = this.value.trim();
+        document.getElementById('demo-clear-btn').style.display = val ? '' : 'none';
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() { showSuggestions(val); }, 150);
+    });
+
+    input.addEventListener('keydown', function(e) {
+        var items = document.querySelectorAll('.demo-suggestion-item');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIdx = Math.min(selectedIdx + 1, items.length - 1);
+            items.forEach(function(el, i) { el.classList.toggle('active', i === selectedIdx); });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIdx = Math.max(selectedIdx - 1, 0);
+            items.forEach(function(el, i) { el.classList.toggle('active', i === selectedIdx); });
+        } else if (e.key === 'Enter' && selectedIdx >= 0) {
+            e.preventDefault();
+            items[selectedIdx].click();
+        } else if (e.key === 'Escape') {
+            hideSuggestions();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.demo-search-card')) {
+            hideSuggestions();
+        }
+    });
+
+    // Clear button
+    document.getElementById('demo-clear-btn').addEventListener('click', function() {
+        input.value = '';
+        this.style.display = 'none';
+        hideSuggestions();
+        input.focus();
+    });
+
+    // Result close
+    document.getElementById('demo-result-close').addEventListener('click', function() {
+        document.getElementById('demo-result').style.display = 'none';
+    });
+
+    // SQL toggle
+    document.getElementById('demo-sql-toggle').addEventListener('click', function() {
+        var sqlDiv = document.getElementById('demo-result-sql');
+        var visible = sqlDiv.style.display !== 'none';
+        sqlDiv.style.display = visible ? 'none' : '';
+        this.classList.toggle('open', !visible);
+        this.innerHTML = visible
+            ? '<i class="fas fa-code"></i> Show generated SQL'
+            : '<i class="fas fa-code"></i> Hide generated SQL';
+    });
+
+    // Filter chips
+    document.querySelectorAll('.demo-chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.demo-chip').forEach(function(c) { c.classList.remove('active'); });
+            this.classList.add('active');
+            activeFilter = this.getAttribute('data-filter');
+            updateStats();
+            showSampleQuestions();
+            var val = input.value.trim();
+            if (val.length >= 2) showSuggestions(val);
+        });
+    });
+
+    // Refresh button
+    document.getElementById('demo-refresh-btn').addEventListener('click', function() {
+        showSampleQuestions();
+    });
+})();
+</script>
+
+</body>
+</html>
